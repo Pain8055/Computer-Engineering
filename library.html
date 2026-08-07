@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Library — PolyStack</title>
+<meta name="description" content="Core terms and a semester-by-semester reading list for a Computer Engineering diploma.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#0a120d;
+    --panel:#0f2419;
+    --panel-2:#132e1f;
+    --panel-3:#0c1c14;
+    --copper:#c6874f;
+    --copper-bright:#e3a368;
+    --led:#5fe1d4;
+    --ink:#edebdf;
+    --ink-dim:#8fa396;
+    --line: rgba(198,135,79,0.28);
+    --line-soft: rgba(198,135,79,0.14);
+    --radius: 3px;
+    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+    --sans: 'IBM Plex Sans', system-ui, sans-serif;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth; background:var(--void);}
+  body{ background:var(--void); color:var(--ink); font-family:var(--sans); line-height:1.55; overflow-x:hidden; }
+  ::selection{ background:var(--copper); color:var(--void); }
+  a{ color:inherit; text-decoration:none; }
+  ul{ list-style:none; }
+  img,svg{ display:block; max-width:100%; }
+  button{ font-family:inherit; cursor:pointer; }
+  :focus-visible{ outline:2px solid var(--led); outline-offset:3px; }
+  .wrap{ max-width:1180px; margin:0 auto; padding:0 32px; }
+
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(var(--line-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+    background-size: 64px 64px;
+    opacity:0.35;
+    pointer-events:none;
+    z-index:0;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 90%);
+  }
+
+  .eyebrow{
+    font-family:var(--mono); font-size:12.5px; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--led); display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{ content:""; width:7px; height:7px; background:var(--led); border-radius:50%; box-shadow:0 0 8px 1px var(--led); flex-shrink:0; }
+
+  h1,h2,h3{ font-family:var(--mono); font-weight:600; letter-spacing:-0.01em; }
+
+  /* ---------- NAV (matches index.html) ---------- */
+  header{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    background:rgba(10,18,13,0.72); backdrop-filter: blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  nav{ max-width:1180px; margin:0 auto; padding:0 32px; height:66px; display:flex; align-items:center; justify-content:space-between; }
+  .logo{ font-family:var(--mono); font-weight:700; font-size:17px; letter-spacing:0.02em; display:flex; align-items:center; gap:8px; }
+  .logo .dot{ color:var(--led); }
+  .nav-links{ display:flex; gap:34px; }
+  .nav-links a{
+    font-family:var(--mono); font-size:13px; letter-spacing:0.03em; color:var(--ink-dim);
+    transition:color .3s var(--ease); position:relative; padding-bottom:4px;
+  }
+  .nav-links a:hover{ color:var(--ink); }
+  .nav-links a::after{
+    content:""; position:absolute; left:0; right:100%; bottom:-2px; height:1.5px;
+    background:var(--led); box-shadow:0 0 6px 0 var(--led); transition:right .35s var(--ease);
+  }
+  .nav-links a.active{ color:var(--led); }
+  .nav-links a.active::after{ right:0; }
+  .nav-cta{
+    font-family:var(--mono); font-size:13px; letter-spacing:0.02em; padding:9px 18px;
+    border:1px solid var(--copper); border-radius:var(--radius); color:var(--copper-bright);
+    background:transparent; transition:all .2s; white-space:nowrap;
+  }
+  .nav-cta:hover{ background:var(--copper); color:var(--void); }
+  .burger{ display:none; width:34px; height:34px; border:1px solid var(--line); border-radius:var(--radius); background:transparent; position:relative; }
+  .burger span, .burger span::before, .burger span::after{
+    content:""; position:absolute; left:8px; right:8px; height:1.5px; background:var(--ink); transition:transform .25s, opacity .25s;
+  }
+  .burger span{ top:16px; }
+  .burger span::before{ top:-6px; }
+  .burger span::after{ top:6px; }
+  .burger.open span{ background:transparent; }
+  .burger.open span::before{ transform: translateY(6px) rotate(45deg); }
+  .burger.open span::after{ transform: translateY(-6px) rotate(-45deg); }
+  .mobile-menu{
+    display:flex; flex-direction:column; gap:2px; background:var(--panel-3);
+    border-bottom:1px solid transparent; max-height:0; overflow:hidden; opacity:0;
+    transition:max-height .45s var(--ease), opacity .3s var(--ease), border-color .45s;
+  }
+  .mobile-menu.open{ max-height:420px; opacity:1; border-bottom-color:var(--line); }
+  .mobile-menu a{
+    font-family:var(--mono); font-size:14px; padding:16px 32px; border-top:1px solid var(--line-soft);
+    color:var(--ink-dim); transition:color .2s, padding-left .2s var(--ease);
+  }
+  .mobile-menu a:hover{ color:var(--ink); padding-left:38px; }
+  .mobile-menu a.active{ color:var(--led); }
+
+  /* ---------- PAGE HEAD ---------- */
+  .page-head{ position:relative; z-index:1; padding:150px 0 56px; }
+  .page-head h1{ font-size:clamp(30px,4vw,46px); line-height:1.08; margin:16px 0 16px; max-width:680px; }
+  .page-head p{ color:var(--ink-dim); font-size:15.5px; max-width:560px; }
+
+  /* ---------- FILTER BAR ---------- */
+  .filter-bar{
+    position:relative; z-index:1;
+    display:flex; flex-wrap:wrap; gap:10px; align-items:center;
+    padding:18px 0 40px;
+    border-bottom:1px solid var(--line);
+    margin-bottom:48px;
+  }
+  .search-box{
+    display:flex; align-items:center; gap:8px;
+    background:var(--panel-3); border:1px solid var(--line); border-radius:var(--radius);
+    padding:10px 14px; flex:1 1 220px; max-width:320px;
+  }
+  .search-box svg{ width:15px; height:15px; color:var(--ink-dim); flex-shrink:0; }
+  .search-box input{
+    background:transparent; border:none; outline:none; color:var(--ink);
+    font-family:var(--sans); font-size:13.5px; width:100%;
+  }
+  .search-box input::placeholder{ color:var(--ink-dim); }
+  .chip-row{ display:flex; flex-wrap:wrap; gap:8px; }
+  .chip{
+    font-family:var(--mono); font-size:12px; letter-spacing:0.02em;
+    padding:8px 13px; border:1px solid var(--line); border-radius:var(--radius);
+    color:var(--ink-dim); background:transparent; transition:all .25s var(--ease);
+  }
+  .chip:hover{ border-color:var(--copper); color:var(--ink); }
+  .chip.active{ border-color:var(--led); color:var(--led); box-shadow:inset 0 0 0 1px var(--led); }
+
+  /* ---------- SECTIONS ---------- */
+  section{ position:relative; z-index:1; padding:0 0 96px; }
+  .section-head{ max-width:620px; margin-bottom:36px; }
+  .section-head h2{ font-size:clamp(24px,3vw,32px); margin:14px 0 12px; }
+  .section-head p{ color:var(--ink-dim); font-size:15px; }
+
+  /* ---------- GLOSSARY (datasheet-style entries) ---------- */
+  .glossary-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:6px; overflow:hidden; }
+  .term-card{
+    background:var(--void); padding:22px 22px 20px; transition:background .25s var(--ease);
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .term-card:hover{ background:var(--panel-3); }
+  .term-head{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+  .term-name{ font-family:var(--mono); font-size:15px; color:var(--ink); font-weight:600; }
+  .term-pin{ font-family:var(--mono); font-size:10.5px; color:var(--copper-bright); opacity:0.85; white-space:nowrap; }
+  .term-card p{ font-size:13.5px; color:var(--ink-dim); }
+  .term-brief{ margin-bottom:2px; }
+  .term-sem{ font-family:var(--mono); font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--led); opacity:0.8; }
+  .term-toggle{
+    align-self:flex-start;
+    background:transparent; border:none; padding:2px 0;
+    font-family:var(--mono); font-size:11px; letter-spacing:0.04em;
+    color:var(--copper-bright); opacity:0.85;
+    transition:opacity .2s, color .2s;
+  }
+  .term-toggle:hover{ opacity:1; color:var(--led); }
+  .term-long{
+    max-height:0; overflow:hidden; opacity:0;
+    transition:max-height .4s var(--ease), opacity .3s var(--ease), margin-top .4s var(--ease);
+  }
+  .term-card.expanded .term-long{ max-height:240px; opacity:1; margin-top:2px; }
+
+  /* ---------- BOOKS ---------- */
+  .book-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:20px; }
+  .book-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:22px 22px 20px;
+    transition:border-color .3s var(--ease), box-shadow .3s var(--ease);
+  }
+  .book-card:hover{ border-color:var(--copper); box-shadow:0 16px 32px -18px rgba(0,0,0,0.6); }
+  .book-sem{ font-family:var(--mono); font-size:11px; color:var(--led); letter-spacing:0.06em; }
+  .book-card h3{ font-size:16px; margin:10px 0 4px; color:var(--ink); line-height:1.3; }
+  .book-author{ font-family:var(--mono); font-size:12px; color:var(--copper-bright); margin-bottom:10px; }
+  .book-card p{ font-size:13px; color:var(--ink-dim); }
+
+  .empty-msg{
+    font-family:var(--mono); font-size:13px; color:var(--ink-dim);
+    padding:28px 4px; border:1px dashed var(--line); border-radius:6px; text-align:center;
+    display:none;
+  }
+  .empty-msg.show{ display:block; }
+
+  /* ---------- CTA (reused pattern) ---------- */
+  .cta-panel{
+    background:var(--panel); border:1px solid var(--line); border-radius:8px;
+    padding:56px 48px; text-align:center;
+  }
+  .cta-panel h2{ font-size:clamp(22px,2.8vw,30px); margin:16px 0 14px; }
+  .cta-panel p{ color:var(--ink-dim); max-width:460px; margin:0 auto 28px; }
+  .cta-actions{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+  .btn-primary{
+    font-family:var(--mono); font-size:13.5px; letter-spacing:0.02em; padding:14px 24px;
+    background:var(--led); color:var(--void); border-radius:var(--radius); font-weight:600;
+    transition:transform .2s, box-shadow .2s; display:inline-block;
+  }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 8px 24px -8px rgba(95,225,212,0.5); }
+  .btn-ghost{
+    font-family:var(--mono); font-size:13.5px; padding:14px 20px; color:var(--ink-dim);
+    border-bottom:1px solid var(--line); transition:color .2s, border-color .2s;
+  }
+  .btn-ghost:hover{ color:var(--ink); border-color:var(--copper); }
+
+  /* ---------- FOOTER (matches index.html) ---------- */
+  footer{ border-top:1px solid var(--line); padding:56px 0 40px; position:relative; z-index:1; }
+  .pin-row{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:24px; padding-bottom:32px; margin-bottom:24px; border-bottom:1px solid var(--line-soft); }
+  .pin-col h4{ font-family:var(--mono); font-size:11px; letter-spacing:0.1em; color:var(--led); text-transform:uppercase; margin-bottom:14px; }
+  .pin-col a, .pin-col span{ display:block; font-size:13px; color:var(--ink-dim); padding:5px 0; }
+  .pin-col a:hover{ color:var(--ink); }
+  .foot-bottom{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; font-family:var(--mono); font-size:11.5px; color:var(--ink-dim); opacity:0.7; }
+
+  /* ---------- REVEAL ---------- */
+  .reveal{ opacity:0; transform:translateY(26px); transition:opacity .8s var(--ease), transform .8s var(--ease); }
+  .reveal.is-visible{ opacity:1; transform:translateY(0); }
+  @media (prefers-reduced-motion: reduce){ .reveal{ opacity:1; transform:none; transition:none; } .term-long{ transition:none; } }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 900px){
+    .nav-links, .nav-cta{ display:none; }
+    .burger{ display:block; }
+    .glossary-grid{ grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); }
+  }
+  @media (max-width: 560px){
+    .wrap{ padding:0 20px; }
+    .page-head{ padding-top:120px; }
+    .cta-panel{ padding:40px 22px; }
+    .glossary-grid{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a href="index.html" class="logo">POLYSTACK<span class="dot">.</span></a>
+    <div class="nav-links">
+      <a href="index.html#curriculum">Curriculum</a>
+      <a href="index.html#pathway">Pathway</a>
+      <a href="index.html#features">Why It Works</a>
+      <a href="index.html#faq">FAQ</a>
+      <a href="library.html" class="active">Library</a>
+    </div>
+    <a href="index.html#cta" class="nav-cta">Start Learning</a>
+    <button class="burger" id="burger" aria-label="Toggle menu" aria-expanded="false"><span></span></button>
+  </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html#curriculum">Curriculum</a>
+    <a href="index.html#pathway">Pathway</a>
+    <a href="index.html#features">Why It Works</a>
+    <a href="index.html#faq">FAQ</a>
+    <a href="library.html" class="active">Library</a>
+    <a href="index.html#cta">Start Learning</a>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="page-head reveal">
+      <div class="eyebrow">Reference Library</div>
+      <h1>Terms and textbooks, semester by semester.</h1>
+      <p>Every concept and every book below maps to a semester in the curriculum — search across both, or filter down to the stretch you're currently in.</p>
+    </div>
+
+    <div class="filter-bar reveal">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="text" id="libSearch" placeholder="Search terms or books…" aria-label="Search library">
+      </div>
+      <div class="chip-row" id="chipRow">
+        <button class="chip active" data-sem="all">All semesters</button>
+        <button class="chip" data-sem="foundations">Foundations</button>
+        <button class="chip" data-sem="data-structures">Data Structures</button>
+        <button class="chip" data-sem="comp-org">Computer Organization</button>
+        <button class="chip" data-sem="databases">Databases</button>
+        <button class="chip" data-sem="os">Operating Systems</button>
+        <button class="chip" data-sem="networks">Computer Networks</button>
+        <button class="chip" data-sem="web-capstone">Web &amp; Capstone</button>
+      </div>
+    </div>
+
+    <section id="glossary">
+      <div class="section-head reveal">
+        <div class="eyebrow">Glossary</div>
+        <h2>Core terms, defined plainly</h2>
+        <p>Every term gets a one-line definition up front, plus a longer "+ more" explanation with context and an example — pick the depth you need.</p>
+      </div>
+      <div class="glossary-grid reveal" id="glossaryGrid">
+
+        <article class="term-card" data-sem="foundations"><div class="term-head"><span class="term-name">Bit</span><span class="term-pin">T01</span></div><span class="term-sem">Foundations</span><p class="term-brief">The smallest unit of digital information — a single 0 or 1.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">Bits are the raw currency of computing — a single transistor state, a single position in memory, a single pixel's on/off value. Group eight of them together and you get a byte, which is usually the smallest unit a program actually works with day to day.</p></article>
+        <article class="term-card" data-sem="foundations"><div class="term-head"><span class="term-name">Boolean Algebra</span><span class="term-pin">T02</span></div><span class="term-sem">Foundations</span><p class="term-brief">The algebra of true/false logic that every digital circuit is ultimately built from.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">Named after George Boole, this branch of algebra works with only two values — true and false — combined using operators like AND, OR, and NOT. Every digital circuit, from a single logic gate to an entire CPU, is really just boolean algebra expressed in silicon.</p></article>
+        <article class="term-card" data-sem="foundations"><div class="term-head"><span class="term-name">Logic Gate</span><span class="term-pin">T03</span></div><span class="term-sem">Foundations</span><p class="term-brief">A circuit that produces one boolean output from one or more boolean inputs — AND, OR, NOT, and their combinations.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">A logic gate takes one or more binary inputs and produces a single binary output based on a fixed rule — an AND gate only outputs 1 if every input is 1, for example. Chain enough gates together in the right pattern and you can build anything from a calculator to a full processor.</p></article>
+        <article class="term-card" data-sem="foundations"><div class="term-head"><span class="term-name">Compiler</span><span class="term-pin">T04</span></div><span class="term-sem">Foundations</span><p class="term-brief">A program that translates source code, like C, into the machine code a processor can actually run.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">Writing in C or a similar language would be pointless if the processor couldn't understand it — that's the compiler's job. It parses your source code, checks it for errors, and converts it into machine instructions the CPU can execute directly, often optimizing the result along the way.</p></article>
+        <article class="term-card" data-sem="foundations"><div class="term-head"><span class="term-name">Algorithm</span><span class="term-pin">T05</span></div><span class="term-sem">Foundations</span><p class="term-brief">A finite, well-defined sequence of steps for solving a problem, independent of any one programming language.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">An algorithm is language-agnostic — the same sorting algorithm can be written in C, Python, or pseudocode and still be the same algorithm underneath. What matters is that it's finite and well-defined, which is what separates it from a vague idea of how to solve something.</p></article>
+
+        <article class="term-card" data-sem="data-structures"><div class="term-head"><span class="term-name">Pointer</span><span class="term-pin">T06</span></div><span class="term-sem">Data Structures</span><p class="term-brief">A variable that stores the memory address of another variable, rather than a value itself.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">In C, a pointer holds an address like 0x7ffee3, not a value like 42. Dereferencing that pointer follows the address to read or write whatever's actually stored there — powerful for building linked structures, but also the source of most beginner C bugs.</p></article>
+        <article class="term-card" data-sem="data-structures"><div class="term-head"><span class="term-name">Array</span><span class="term-pin">T07</span></div><span class="term-sem">Data Structures</span><p class="term-brief">A fixed-size, contiguous block of memory holding same-type elements, accessed by index.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">Because an array's elements sit next to each other in memory, the computer can jump straight to any index using simple arithmetic — no searching required. The trade-off is that its size is usually fixed once created, unlike more flexible structures such as linked lists.</p></article>
+        <article class="term-card" data-sem="data-structures"><div class="term-head"><span class="term-name">Stack</span><span class="term-pin">T08</span></div><span class="term-sem">Data Structures</span><p class="term-brief">A last-in-first-out structure — the most recently added item is always the first one removed.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">Think of a stack of plates — you can only add or remove from the top. That last-in-first-out behaviour makes stacks a natural fit for undo functionality, expression evaluation, and tracking function calls during recursion.</p></article>
+        <article class="term-card" data-sem="data-structures"><div class="term-head"><span class="term-name">Queue</span><span class="term-pin">T09</span></div><span class="term-sem">Data Structures</span><p class="term-brief">A first-in-first-out structure — items leave in the same order they arrived.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">A queue behaves like a line at a canteen — whoever joined first gets served first. It's the structure behind task scheduling, print spoolers, and any system where fair ordering matters more than fast access.</p></article>
+        <article class="term-card" data-sem="data-structures"><div class="term-head"><span class="term-name">Recursion</span><span class="term-pin">T10</span></div><span class="term-sem">Data Structures</span><p class="term-brief">A function that solves a problem by calling itself on a smaller version of that same problem.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">A recursive function needs a base case — a point where it stops calling itself — or it will run forever until memory runs out. Done well, recursion can turn a complicated problem like tree traversal into a few clean lines of code.</p></article>
+
+        <article class="term-card" data-sem="comp-org"><div class="term-head"><span class="term-name">Microprocessor</span><span class="term-pin">T11</span></div><span class="term-sem">Computer Organization</span><p class="term-brief">The CPU chip that fetches, decodes, and executes instructions — but needs external memory and I/O to be useful.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">A microprocessor on its own can't do much — it needs RAM to hold data, ROM to boot from, and I/O circuitry to talk to the outside world. Building a working computer around one is exactly what a computer organization lab walks you through.</p></article>
+        <article class="term-card" data-sem="comp-org"><div class="term-head"><span class="term-name">Microcontroller</span><span class="term-pin">T12</span></div><span class="term-sem">Computer Organization</span><p class="term-brief">A self-contained chip with a processor, memory, and I/O built onto one die — used for embedded control tasks.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">Unlike a microprocessor, a microcontroller packs the processor, memory, and I/O pins onto a single chip, trading raw power for compactness and low cost. That's why microcontrollers run washing machines and traffic lights while microprocessors run laptops.</p></article>
+        <article class="term-card" data-sem="comp-org"><div class="term-head"><span class="term-name">Register</span><span class="term-pin">T13</span></div><span class="term-sem">Computer Organization</span><p class="term-brief">A small, extremely fast storage location inside the CPU that holds data mid-instruction.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">Registers sit inside the CPU itself, not in RAM, which makes them the fastest storage a processor has access to — but there are only a handful of them. Every arithmetic operation the CPU performs works on values already loaded into registers.</p></article>
+        <article class="term-card" data-sem="comp-org"><div class="term-head"><span class="term-name">Assembly Language</span><span class="term-pin">T14</span></div><span class="term-sem">Computer Organization</span><p class="term-brief">A low-level, human-readable language that maps almost one-to-one onto a processor's own instructions.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">Each line of assembly typically corresponds to one machine instruction, unlike C where one line might compile down to several. It's rarely used for full applications today, but it makes concepts like registers and the fetch-decode-execute cycle far more concrete.</p></article>
+        <article class="term-card" data-sem="comp-org"><div class="term-head"><span class="term-name">Bus</span><span class="term-pin">T15</span></div><span class="term-sem">Computer Organization</span><p class="term-brief">The shared set of wires — data, address, and control — that carries information between CPU, memory, and peripherals.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">The data bus carries the actual information, the address bus specifies where it's going, and the control bus carries the signals that coordinate the transfer. Bus width and speed are a major factor in how fast a computer can move data around internally.</p></article>
+
+        <article class="term-card" data-sem="databases"><div class="term-head"><span class="term-name">Primary Key</span><span class="term-pin">T16</span></div><span class="term-sem">Databases</span><p class="term-brief">A column, or set of columns, that uniquely identifies every row in a table.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">A good primary key never changes and is never null — a student roll number works, a student's name usually doesn't. Every other table that needs to reference a row does so through this key, which is what makes relational joins possible.</p></article>
+        <article class="term-card" data-sem="databases"><div class="term-head"><span class="term-name">Normalization</span><span class="term-pin">T17</span></div><span class="term-sem">Databases</span><p class="term-brief">Structuring tables to reduce duplicated data and avoid inconsistent updates.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">Normalization works through a series of 'normal forms,' each removing a specific kind of redundancy — repeating groups, partial dependencies, transitive dependencies, and so on. A fully normalized database sometimes needs more joins to answer a query, which is why real systems occasionally denormalize on purpose.</p></article>
+        <article class="term-card" data-sem="databases"><div class="term-head"><span class="term-name">Query</span><span class="term-pin">T18</span></div><span class="term-sem">Databases</span><p class="term-brief">A request, usually written in SQL, to retrieve, insert, update, or delete data.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">SQL queries follow a fairly consistent shape — SELECT what you want, FROM which table, WHERE which rows qualify. Beyond basic retrieval, queries can join multiple tables, aggregate data with functions like COUNT or SUM, and filter grouped results.</p></article>
+        <article class="term-card" data-sem="databases"><div class="term-head"><span class="term-name">Transaction</span><span class="term-pin">T19</span></div><span class="term-sem">Databases</span><p class="term-brief">A group of database operations that either all succeed together, or all fail together.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">The classic example is a bank transfer — money leaving one account and arriving in another has to happen together, or not at all. Databases enforce this through ACID compliance, keeping transactions atomic, consistent, isolated, and durable even if something fails mid-way.</p></article>
+        <article class="term-card" data-sem="databases"><div class="term-head"><span class="term-name">Index</span><span class="term-pin">T20</span></div><span class="term-sem">Databases</span><p class="term-brief">A lookup structure that speeds up searches on a table, at the cost of extra storage and slower writes.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">Without an index, finding a row means scanning the whole table. An index — often a B-tree behind the scenes — lets the database jump close to the answer immediately, similar to how a book's index saves you from reading every page.</p></article>
+
+        <article class="term-card" data-sem="os"><div class="term-head"><span class="term-name">Process</span><span class="term-pin">T21</span></div><span class="term-sem">Operating Systems</span><p class="term-brief">A running instance of a program, with its own memory space and execution state.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">Open the same application twice and you get two separate processes, each with its own protected memory — one crashing shouldn't take the other down with it. The OS keeps track of every process's state, open files, and resource usage.</p></article>
+        <article class="term-card" data-sem="os"><div class="term-head"><span class="term-name">Thread</span><span class="term-pin">T22</span></div><span class="term-sem">Operating Systems</span><p class="term-brief">A lightweight unit of execution inside a process, sharing that process's memory with its sibling threads.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">Threads within the same process share memory and open files, which makes communication between them fast but also introduces the risk of two threads modifying the same data at once — a problem operating systems courses spend real time on.</p></article>
+        <article class="term-card" data-sem="os"><div class="term-head"><span class="term-name">Scheduling</span><span class="term-pin">T23</span></div><span class="term-sem">Operating Systems</span><p class="term-brief">How the OS decides which process or thread gets the CPU next.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">With dozens of processes wanting CPU time and only a few cores available, the OS has to decide who runs when — using algorithms like round-robin, priority scheduling, or shortest-job-first. Good scheduling is what keeps a system feeling responsive under heavy load.</p></article>
+        <article class="term-card" data-sem="os"><div class="term-head"><span class="term-name">Deadlock</span><span class="term-pin">T24</span></div><span class="term-sem">Operating Systems</span><p class="term-brief">A state where two or more processes each wait on a resource the other holds, so neither can proceed.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">A classic example is two processes each holding a resource the other needs before it can release its own — neither can move forward. Operating systems either try to prevent deadlocks from forming or detect and recover from them after the fact.</p></article>
+        <article class="term-card" data-sem="os"><div class="term-head"><span class="term-name">Kernel</span><span class="term-pin">T25</span></div><span class="term-sem">Operating Systems</span><p class="term-brief">The core of the OS that manages CPU, memory, and hardware, running with the highest privilege level.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">The kernel is the part of the OS that manages memory allocation, process scheduling, and hardware drivers with privileges no regular application is allowed to have. Linux, Windows, and Android are all built around a kernel of this kind.</p></article>
+
+        <article class="term-card" data-sem="networks"><div class="term-head"><span class="term-name">Protocol</span><span class="term-pin">T26</span></div><span class="term-sem">Computer Networks</span><p class="term-brief">An agreed-upon set of rules that lets two systems exchange data in a way both understand.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">HTTP, TCP, and IP are all protocols, each governing a different layer of how data actually gets from one machine to another. Without an agreed protocol, two systems could exchange bytes perfectly well and still have no idea what those bytes mean.</p></article>
+        <article class="term-card" data-sem="networks"><div class="term-head"><span class="term-name">IP Address</span><span class="term-pin">T27</span></div><span class="term-sem">Computer Networks</span><p class="term-brief">A numeric label assigned to a device on a network, used to route data to it.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">An IPv4 address looks like 192.168.1.1 — four numbers between 0 and 255. As the internet ran out of these, IPv6 was introduced with a vastly larger address space, though both are still in use side by side today.</p></article>
+        <article class="term-card" data-sem="networks"><div class="term-head"><span class="term-name">Router</span><span class="term-pin">T28</span></div><span class="term-sem">Computer Networks</span><p class="term-brief">A device that forwards data packets between different networks based on their destination address.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">A router reads the destination address on each packet and decides which connected network to forward it toward, essentially acting as a junction on the internet's map. Home routers do this on a small scale, connecting your devices to your ISP's larger network.</p></article>
+        <article class="term-card" data-sem="networks"><div class="term-head"><span class="term-name">Bandwidth</span><span class="term-pin">T29</span></div><span class="term-sem">Computer Networks</span><p class="term-brief">The maximum rate data can travel across a connection, usually measured in bits per second.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">Bandwidth is often confused with speed, but they're not quite the same thing — bandwidth is capacity, like the width of a pipe, while actual throughput also depends on latency and congestion. A high-bandwidth connection can still feel slow if latency is high.</p></article>
+        <article class="term-card" data-sem="networks"><div class="term-head"><span class="term-name">Firewall</span><span class="term-pin">T30</span></div><span class="term-sem">Computer Networks</span><p class="term-brief">A system that filters incoming and outgoing network traffic against a defined set of security rules.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">A firewall inspects traffic against a rule set — block this port, allow that IP range — before deciding whether to let a packet through. It's a first line of defence, not a complete security solution on its own.</p></article>
+
+        <article class="term-card" data-sem="web-capstone"><div class="term-head"><span class="term-name">API</span><span class="term-pin">T31</span></div><span class="term-sem">Web &amp; Capstone</span><p class="term-brief">A defined set of rules that lets one piece of software request data or services from another.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">When a weather app on your phone shows today's forecast, it's almost certainly calling a weather service's API behind the scenes rather than measuring the weather itself. APIs let applications share functionality without either side needing to know how the other is built internally.</p></article>
+        <article class="term-card" data-sem="web-capstone"><div class="term-head"><span class="term-name">Version Control</span><span class="term-pin">T32</span></div><span class="term-sem">Web &amp; Capstone</span><p class="term-brief">A system, like Git, that tracks code changes over time so a team can collaborate without overwriting each other's work.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">Before Git-style version control, teams passed files around and often overwrote each other's work by accident. Now every change is tracked, branches let people work in parallel without interfering, and nothing is ever truly lost.</p></article>
+        <article class="term-card" data-sem="web-capstone"><div class="term-head"><span class="term-name">Client-Server Model</span><span class="term-pin">T33</span></div><span class="term-sem">Web &amp; Capstone</span><p class="term-brief">An architecture where a client requests data or services and a server responds to that request.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">Your browser is the client; the website you're visiting runs on a server somewhere else. Almost the entire web works this way — the client asks, the server answers — though peer-to-peer systems are a notable exception.</p></article>
+        <article class="term-card" data-sem="web-capstone"><div class="term-head"><span class="term-name">Responsive Design</span><span class="term-pin">T34</span></div><span class="term-sem">Web &amp; Capstone</span><p class="term-brief">Building a page so its layout adapts cleanly across different screen sizes.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">Rather than building separate sites for phones and desktops, responsive design uses flexible layouts, relative units, and media queries so one codebase adapts to whatever screen it's rendered on — from a small phone to a wide monitor.</p></article>
+        <article class="term-card" data-sem="web-capstone"><div class="term-head"><span class="term-name">Debugging</span><span class="term-pin">T35</span></div><span class="term-sem">Web &amp; Capstone</span><p class="term-brief">Finding and fixing the cause of unexpected behaviour in a program.</p><button class="term-toggle" type="button" aria-expanded="false">+ more</button><p class="term-long">Debugging is as much a mindset as a skill — reproducing the bug reliably, narrowing down where it happens, and forming a hypothesis before touching any code. Tools like breakpoints matter less than the discipline of not guessing randomly.</p></article>
+
+      </div>
+      <p class="empty-msg" id="glossaryEmpty">No terms match that search or filter.</p>
+    </section>
+
+    <section id="books">
+      <div class="section-head reveal">
+        <div class="eyebrow">Reading list</div>
+        <h2>The books each semester actually leans on</h2>
+        <p>Two per semester — a primary text and a companion. All standard, widely available titles, not exclusive to any one program.</p>
+      </div>
+      <div class="book-grid reveal" id="bookGrid">
+
+        <article class="book-card" data-sem="foundations"><div class="book-sem">Foundations</div><h3>Let Us C</h3><div class="book-author">Yashavant Kanetkar</div><p>The standard first C textbook in most Indian diploma and engineering programs, built around short, testable examples.</p></article>
+        <article class="book-card" data-sem="foundations"><div class="book-sem">Foundations</div><h3>Digital Logic and Computer Design</h3><div class="book-author">M. Morris Mano</div><p>The reference most digital electronics courses are built around, from boolean algebra through sequential circuits.</p></article>
+
+        <article class="book-card" data-sem="data-structures"><div class="book-sem">Data Structures</div><h3>Data Structures Using C</h3><div class="book-author">Reema Thareja</div><p>Implements every core structure directly in C, matching how most diploma courses teach the subject.</p></article>
+        <article class="book-card" data-sem="data-structures"><div class="book-sem">Data Structures</div><h3>Data Structures (Schaum's Outline)</h3><div class="book-author">Seymour Lipschutz</div><p>Dense with solved problems — useful for exam practice alongside a primary text.</p></article>
+
+        <article class="book-card" data-sem="comp-org"><div class="book-sem">Computer Organization</div><h3>Computer Organization and Architecture</h3><div class="book-author">William Stallings</div><p>The standard reference for how a CPU actually fetches, decodes, and executes instructions.</p></article>
+        <article class="book-card" data-sem="comp-org"><div class="book-sem">Computer Organization</div><h3>Microprocessor Architecture, Programming, and Applications with the 8085</h3><div class="book-author">Ramesh S. Gaonkar</div><p>The usual companion for microprocessor labs built around the 8085.</p></article>
+
+        <article class="book-card" data-sem="databases"><div class="book-sem">Databases</div><h3>Database System Concepts</h3><div class="book-author">Silberschatz, Korth &amp; Sudarshan</div><p>Broad and rigorous — the default choice for a first DBMS course.</p></article>
+        <article class="book-card" data-sem="databases"><div class="book-sem">Databases</div><h3>Fundamentals of Database Systems</h3><div class="book-author">Elmasri &amp; Navathe</div><p>A common alternative with a strong section on relational design and normalization.</p></article>
+
+        <article class="book-card" data-sem="os"><div class="book-sem">Operating Systems</div><h3>Operating System Concepts</h3><div class="book-author">Silberschatz, Galvin &amp; Gagne</div><p>Known as the "Dinosaur Book" — the most widely assigned OS textbook worldwide.</p></article>
+        <article class="book-card" data-sem="os"><div class="book-sem">Operating Systems</div><h3>Modern Operating Systems</h3><div class="book-author">Andrew S. Tanenbaum</div><p>A more implementation-focused companion, useful alongside the above.</p></article>
+
+        <article class="book-card" data-sem="networks"><div class="book-sem">Computer Networks</div><h3>Computer Networks</h3><div class="book-author">Andrew S. Tanenbaum</div><p>Organizes the subject by network layer, top to bottom.</p></article>
+        <article class="book-card" data-sem="networks"><div class="book-sem">Computer Networks</div><h3>Data Communications and Networking</h3><div class="book-author">Behrouz A. Forouzan</div><p>A gentler, example-heavy alternative that many diploma courses prefer.</p></article>
+
+        <article class="book-card" data-sem="web-capstone"><div class="book-sem">Web &amp; Capstone</div><h3>Head First HTML and CSS</h3><div class="book-author">Elisabeth Robson &amp; Eric Freeman</div><p>An approachable way into front-end basics before reaching for any framework.</p></article>
+        <article class="book-card" data-sem="web-capstone"><div class="book-sem">Web &amp; Capstone</div><h3>Software Engineering: A Practitioner's Approach</h3><div class="book-author">Roger S. Pressman</div><p>The standard reference for the SDLC and project-management ideas the capstone draws on.</p></article>
+
+      </div>
+      <p class="empty-msg" id="bookEmpty">No books match that search or filter.</p>
+    </section>
+
+    <section id="cta">
+      <div class="cta-panel reveal">
+        <div class="eyebrow" style="justify-content:center;">Next step</div>
+        <h2>Ready to see how it all fits together?</h2>
+        <p>The curriculum page lays these same seven areas out semester by semester, with what you'll actually build in each one.</p>
+        <div class="cta-actions">
+          <a href="index.html#curriculum" class="btn-primary">Back to curriculum</a>
+          <a href="index.html#cta" class="btn-ghost">Start learning →</a>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="pin-row">
+      <div class="pin-col">
+        <h4>Program</h4>
+        <a href="index.html#curriculum">Curriculum</a>
+        <a href="index.html#pathway">Career pathway</a>
+        <a href="index.html#features">Why it works</a>
+        <a href="library.html">Library — terms &amp; books</a>
+      </div>
+      <div class="pin-col">
+        <h4>Support</h4>
+        <a href="index.html#faq">FAQ</a>
+        <span>Admissions guidance</span>
+        <span>Lateral-entry help</span>
+      </div>
+      <div class="pin-col">
+        <h4>Status</h4>
+        <span>Template · v1.0</span>
+        <span>No backend connected</span>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>POLYSTACK — a Computer Engineering diploma template</span>
+      <span>Design concept, not an accredited institution</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- MOBILE NAV ---------- */
+  var burger = document.getElementById('burger');
+  var mobileMenu = document.getElementById('mobileMenu');
+  burger.addEventListener('click', function(){
+    var open = mobileMenu.classList.toggle('open');
+    burger.classList.toggle('open', open);
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  mobileMenu.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', function(){
+      mobileMenu.classList.remove('open');
+      burger.classList.remove('open');
+    });
+  });
+
+  /* ---------- REVEAL ON SCROLL ---------- */
+  var revealEls = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){ en.target.classList.add('is-visible'); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(function(el){ io.observe(el); });
+  } else {
+    revealEls.forEach(function(el){ el.classList.add('is-visible'); });
+  }
+
+  /* ---------- GLOSSARY EXPAND / COLLAPSE ---------- */
+  document.querySelectorAll('.term-toggle').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var card = btn.closest('.term-card');
+      var open = card.classList.toggle('expanded');
+      btn.textContent = open ? '– less' : '+ more';
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  });
+
+  /* ---------- SEARCH + SEMESTER FILTER (drives both glossary and books) ---------- */
+  var searchInput = document.getElementById('libSearch');
+  var chips = document.querySelectorAll('.chip');
+  var terms = document.querySelectorAll('.term-card');
+  var books = document.querySelectorAll('.book-card');
+  var glossaryEmpty = document.getElementById('glossaryEmpty');
+  var bookEmpty = document.getElementById('bookEmpty');
+  var activeSem = 'all';
+
+  function applyFilter(){
+    var q = searchInput.value.trim().toLowerCase();
+    var termsVisible = 0, booksVisible = 0;
+
+    terms.forEach(function(card){
+      var semOk = activeSem === 'all' || card.getAttribute('data-sem') === activeSem;
+      var textOk = !q || card.textContent.toLowerCase().indexOf(q) !== -1;
+      var show = semOk && textOk;
+      card.style.display = show ? '' : 'none';
+      if(show) termsVisible++;
+    });
+    books.forEach(function(card){
+      var semOk = activeSem === 'all' || card.getAttribute('data-sem') === activeSem;
+      var textOk = !q || card.textContent.toLowerCase().indexOf(q) !== -1;
+      var show = semOk && textOk;
+      card.style.display = show ? '' : 'none';
+      if(show) booksVisible++;
+    });
+
+    glossaryEmpty.classList.toggle('show', termsVisible === 0);
+    bookEmpty.classList.toggle('show', booksVisible === 0);
+  }
+
+  searchInput.addEventListener('input', applyFilter);
+  chips.forEach(function(chip){
+    chip.addEventListener('click', function(){
+      chips.forEach(function(c){ c.classList.remove('active'); });
+      chip.classList.add('active');
+      activeSem = chip.getAttribute('data-sem');
+      applyFilter();
+    });
+  });
+})();
+</script>
+</body>
+</html>

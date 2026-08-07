@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PolyStack — Diploma in Computer Engineering</title>
+<meta name="description" content="A hands-on path through Computer Engineering — from breadboard to build.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#0a120d;
+    --panel:#0f2419;
+    --panel-2:#132e1f;
+    --panel-3:#0c1c14;
+    --copper:#c6874f;
+    --copper-bright:#e3a368;
+    --led:#5fe1d4;
+    --ink:#edebdf;
+    --ink-dim:#8fa396;
+    --line: rgba(198,135,79,0.28);
+    --line-soft: rgba(198,135,79,0.14);
+    --radius: 3px;
+    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+    --sans: 'IBM Plex Sans', system-ui, sans-serif;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth; background:var(--void);}
+  body{
+    background:var(--void);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.55;
+    overflow-x:hidden;
+  }
+
+  ::selection{ background:var(--copper); color:var(--void); }
+
+  a{ color:inherit; text-decoration:none; }
+  ul{ list-style:none; }
+  img,svg{ display:block; max-width:100%; }
+  button{ font-family:inherit; cursor:pointer; }
+
+  :focus-visible{ outline:2px solid var(--led); outline-offset:3px; }
+
+  .wrap{ max-width:1180px; margin:0 auto; padding:0 32px; }
+
+  /* subtle PCB trace texture across whole page */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(var(--line-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+    background-size: 64px 64px;
+    opacity:0.35;
+    pointer-events:none;
+    z-index:0;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 90%);
+  }
+
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:12.5px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--led);
+    display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:7px; height:7px;
+    background:var(--led);
+    border-radius:50%;
+    box-shadow:0 0 8px 1px var(--led);
+    flex-shrink:0;
+  }
+
+  h1,h2,h3{ font-family:var(--mono); font-weight:600; letter-spacing:-0.01em; }
+
+  /* ---------- NAV ---------- */
+  header{
+    position:fixed; top:0; left:0; right:0;
+    z-index:100;
+    background:rgba(10,18,13,0.72);
+    backdrop-filter: blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  nav{
+    max-width:1180px; margin:0 auto; padding:0 32px;
+    height:66px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .logo{
+    font-family:var(--mono); font-weight:700; font-size:17px;
+    letter-spacing:0.02em;
+    display:flex; align-items:center; gap:8px;
+  }
+  .logo .dot{ color:var(--led); }
+  .nav-links{ display:flex; gap:34px; }
+  .nav-links a{
+    font-family:var(--mono); font-size:13px; letter-spacing:0.03em;
+    color:var(--ink-dim);
+    transition:color .3s var(--ease);
+    position:relative;
+    padding-bottom:4px;
+  }
+  .nav-links a:hover{ color:var(--ink); }
+  .nav-links a::after{
+    content:"";
+    position:absolute; left:0; right:100%; bottom:-2px; height:1.5px;
+    background:var(--led);
+    box-shadow:0 0 6px 0 var(--led);
+    transition:right .35s var(--ease);
+  }
+  .nav-links a.active{ color:var(--led); }
+  .nav-links a.active::after{ right:0; }
+  .nav-cta{
+    font-family:var(--mono); font-size:13px; letter-spacing:0.02em;
+    padding:9px 18px;
+    border:1px solid var(--copper);
+    border-radius:var(--radius);
+    color:var(--copper-bright);
+    background:transparent;
+    transition:all .2s;
+    white-space:nowrap;
+  }
+  .nav-cta:hover{ background:var(--copper); color:var(--void); }
+
+  .burger{
+    display:none;
+    width:34px; height:34px;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:transparent;
+    position:relative;
+  }
+  .burger span, .burger span::before, .burger span::after{
+    content:""; position:absolute; left:8px; right:8px; height:1.5px;
+    background:var(--ink); transition:transform .25s, opacity .25s;
+  }
+  .burger span{ top:16px; }
+  .burger span::before{ top:-6px; }
+  .burger span::after{ top:6px; }
+  .burger.open span{ background:transparent; }
+  .burger.open span::before{ transform: translateY(6px) rotate(45deg); }
+  .burger.open span::after{ transform: translateY(-6px) rotate(-45deg); }
+
+  .mobile-menu{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    background:var(--panel-3);
+    border-bottom:1px solid transparent;
+    max-height:0;
+    overflow:hidden;
+    opacity:0;
+    transition:max-height .45s var(--ease), opacity .3s var(--ease), border-color .45s;
+  }
+  .mobile-menu.open{ max-height:420px; opacity:1; border-bottom-color:var(--line); }
+  .mobile-menu a{
+    font-family:var(--mono); font-size:14px;
+    padding:16px 32px;
+    border-top:1px solid var(--line-soft);
+    color:var(--ink-dim);
+    transition:color .2s, padding-left .2s var(--ease);
+  }
+  .mobile-menu a:hover{ color:var(--ink); padding-left:38px; }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    min-height:100vh;
+    display:flex; align-items:center;
+    padding-top:66px;
+    z-index:1;
+  }
+  .hero-grid{
+    display:grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap:24px;
+    align-items:center;
+    width:100%;
+  }
+  .hero-copy h1{
+    font-size:clamp(34px, 4.6vw, 58px);
+    line-height:1.05;
+    margin:18px 0 22px;
+    color:var(--ink);
+  }
+  .hero-copy h1 em{
+    font-style:normal;
+    color:var(--copper-bright);
+  }
+  .hero-copy p{
+    font-size:16.5px;
+    color:var(--ink-dim);
+    max-width:480px;
+    margin-bottom:34px;
+  }
+  .hero-actions{ display:flex; gap:14px; flex-wrap:wrap; align-items:center; }
+  .btn-primary{
+    font-family:var(--mono); font-size:13.5px; letter-spacing:0.02em;
+    padding:14px 24px;
+    background:var(--led);
+    color:var(--void);
+    border-radius:var(--radius);
+    font-weight:600;
+    transition:transform .2s, box-shadow .2s;
+    display:inline-block;
+  }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 8px 24px -8px rgba(95,225,212,0.5); }
+  .btn-ghost{
+    font-family:var(--mono); font-size:13.5px;
+    padding:14px 20px;
+    color:var(--ink-dim);
+    border-bottom:1px solid var(--line);
+    transition:color .2s, border-color .2s;
+  }
+  .btn-ghost:hover{ color:var(--ink); border-color:var(--copper); }
+
+  .hero-visual{
+    position:relative;
+    height:min(520px, 60vh);
+    border:1px solid var(--line);
+    border-radius:6px;
+    background:
+      radial-gradient(circle at 70% 30%, rgba(95,225,212,0.06), transparent 60%),
+      var(--panel-3);
+    overflow:hidden;
+    touch-action:none;
+  }
+  .hero-visual canvas{
+    width:100% !important; height:100% !important; display:block; cursor:grab;
+    opacity:0; transition:opacity 1.1s var(--ease);
+    touch-action:none;
+    -webkit-user-select:none; user-select:none;
+    -webkit-touch-callout:none;
+  }
+  .hero-visual canvas.ready{ opacity:1; }
+  .hero-visual canvas:active{ cursor:grabbing; }
+  .drag-hint{
+    position:absolute; bottom:14px; left:0; right:0;
+    text-align:center;
+    font-family:var(--mono); font-size:11px; letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--ink-dim);
+    opacity:0.7;
+    pointer-events:none;
+  }
+  .corner-tag{
+    position:absolute; top:14px; left:16px;
+    font-family:var(--mono); font-size:10.5px; letter-spacing:0.08em;
+    color:var(--led); opacity:0.85;
+  }
+
+  /* ---------- STATS STRIP ---------- */
+  .stats{
+    position:relative; z-index:1;
+    padding:64px 0;
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+  }
+  .stats-row{
+    display:flex; flex-wrap:wrap;
+    position:relative;
+  }
+  .stats-row::before{
+    content:"";
+    position:absolute; top:50%; left:0; right:0; height:1px;
+    background:var(--line);
+    z-index:0;
+  }
+  .stat{
+    flex:1; min-width:160px;
+    text-align:center;
+    padding:0 12px;
+    position:relative; z-index:1;
+    background:var(--void);
+  }
+  .stat .num{
+    font-family:var(--mono); font-size:clamp(26px,3vw,36px);
+    color:var(--copper-bright); font-weight:700;
+  }
+  .stat .label{
+    font-size:12.5px; color:var(--ink-dim);
+    margin-top:6px;
+    font-family:var(--mono); letter-spacing:0.03em;
+  }
+
+  /* ---------- SECTION HEADS ---------- */
+  section{ position:relative; z-index:1; padding:96px 0; }
+  .section-head{ max-width:620px; margin-bottom:56px; }
+  .section-head h2{
+    font-size:clamp(26px,3.2vw,38px);
+    margin:14px 0 16px;
+  }
+  .section-head p{ color:var(--ink-dim); font-size:15.5px; }
+
+  /* ---------- CURRICULUM ---------- */
+  .curriculum-track{
+    display:flex; gap:20px;
+    overflow-x:auto;
+    padding:20px 4px 28px;
+    perspective:1400px;
+    scroll-snap-type:x proximity;
+    scrollbar-width:thin;
+    scrollbar-color:var(--copper) transparent;
+  }
+  .curriculum-track::-webkit-scrollbar{ height:6px; }
+  .curriculum-track::-webkit-scrollbar-thumb{ background:var(--copper); border-radius:4px; }
+
+  .c-card{
+    position:relative;
+    flex:0 0 260px;
+    scroll-snap-align:start;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:24px 22px;
+    overflow:hidden;
+    transform-style:preserve-3d;
+    transition:border-color .3s var(--ease), box-shadow .3s var(--ease);
+    will-change:transform;
+  }
+  .c-card::after{
+    content:"";
+    position:absolute; inset:0;
+    background:radial-gradient(220px circle at var(--mx,50%) var(--my,50%), rgba(95,225,212,0.12), transparent 62%);
+    opacity:0;
+    transition:opacity .35s var(--ease);
+    pointer-events:none;
+  }
+  .c-card:hover::after{ opacity:1; }
+  .c-card:hover{
+    border-color:var(--copper);
+    box-shadow:0 20px 40px -20px rgba(0,0,0,0.6);
+  }
+  .c-card .sem{
+    font-family:var(--mono); font-size:11px; color:var(--led);
+    letter-spacing:0.08em;
+  }
+  .c-card h3{
+    font-size:18px; margin:10px 0 14px; color:var(--ink);
+  }
+  .c-card ul li{
+    font-size:13px; color:var(--ink-dim);
+    padding:6px 0; border-top:1px dashed var(--line-soft);
+    display:flex; gap:8px;
+  }
+  .c-card ul li:first-child{ border-top:none; }
+  .c-card ul li::before{ content:"›"; color:var(--copper); }
+
+  /* ---------- PATHWAY ---------- */
+  .pathway{ background:var(--panel-3); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .pathway-diagram{ margin-top:20px; }
+  .pathway-diagram svg{ width:100%; height:auto; overflow:visible; }
+  .trace-line{
+    fill:none; stroke:var(--copper); stroke-width:1.5;
+    stroke-dasharray:6 5;
+    animation: dash 2.4s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce){ .trace-line{ animation:none; } }
+  @keyframes dash{ to{ stroke-dashoffset:-110; } }
+  .p-node{
+    fill:var(--panel); stroke:var(--line); stroke-width:1;
+    transition:filter .3s var(--ease), stroke .3s var(--ease);
+  }
+  .p-node.root{ stroke:var(--led); }
+  .p-node:hover{ stroke:var(--led); filter:drop-shadow(0 0 7px rgba(95,225,212,0.55)); }
+  .p-label{
+    font-family:var(--mono); font-size:12px; fill:var(--ink);
+  }
+  .p-sub{
+    font-family:var(--sans); font-size:10.5px; fill:var(--ink-dim);
+  }
+
+  /* ---------- FEATURES ---------- */
+  .feature-grid{
+    display:grid; grid-template-columns:repeat(3,1fr);
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    border-radius:6px;
+    overflow:hidden;
+  }
+  .feature{
+    background:var(--void);
+    padding:32px 26px;
+    transition:background .2s;
+  }
+  .feature:hover{ background:var(--panel-3); }
+  .feature .ic{ width:34px; height:34px; margin-bottom:18px; color:var(--led); }
+  .feature h3{ font-size:16px; margin-bottom:10px; }
+  .feature p{ font-size:13.5px; color:var(--ink-dim); }
+
+  /* ---------- FAQ ---------- */
+  .faq-list{ border-top:1px solid var(--line); max-width:760px; }
+  details{ border-bottom:1px solid var(--line); }
+  summary{
+    list-style:none;
+    padding:22px 4px;
+    display:flex; justify-content:space-between; align-items:center;
+    gap:20px;
+    font-family:var(--mono); font-size:14.5px;
+    color:var(--ink);
+    cursor:pointer;
+  }
+  summary::-webkit-details-marker{ display:none; }
+  summary::after{
+    content:"+";
+    font-size:20px; color:var(--copper-bright);
+    flex-shrink:0;
+    transition:transform .2s;
+  }
+  details[open] summary::after{ content:"–"; }
+  details .faq-body{
+    padding:0 4px 24px;
+    color:var(--ink-dim);
+    font-size:14px;
+    max-width:600px;
+  }
+
+  /* ---------- CTA ---------- */
+  .cta-panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:64px 48px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .cta-panel h2{ font-size:clamp(24px,3vw,34px); margin:16px 0 14px; }
+  .cta-panel p{ color:var(--ink-dim); max-width:480px; margin:0 auto 32px; }
+  .cta-actions{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+  .cta-note{ font-size:12px; color:var(--ink-dim); margin-top:22px; opacity:0.75; }
+
+  /* ---------- FOOTER (pinout) ---------- */
+  footer{
+    border-top:1px solid var(--line);
+    padding:56px 0 40px;
+  }
+  .pin-row{
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:24px;
+    padding-bottom:32px; margin-bottom:24px;
+    border-bottom:1px solid var(--line-soft);
+  }
+  .pin-col h4{
+    font-family:var(--mono); font-size:11px; letter-spacing:0.1em;
+    color:var(--led); text-transform:uppercase; margin-bottom:14px;
+  }
+  .pin-col a, .pin-col span{
+    display:block; font-size:13px; color:var(--ink-dim);
+    padding:5px 0;
+  }
+  .pin-col a:hover{ color:var(--ink); }
+  .foot-bottom{
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
+    font-family:var(--mono); font-size:11.5px; color:var(--ink-dim); opacity:0.7;
+  }
+
+  /* ---------- REVEAL ---------- */
+  .reveal{ opacity:0; transform:translateY(26px); transition:opacity .8s var(--ease), transform .8s var(--ease); }
+  .reveal.is-visible{ opacity:1; transform:translateY(0); }
+  @media (prefers-reduced-motion: reduce){
+    .reveal{ opacity:1; transform:none; transition:none; }
+  }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 900px){
+    .nav-links, .nav-cta{ display:none; }
+    .burger{ display:block; }
+    .hero-grid{ grid-template-columns:1fr; }
+    .hero-visual{ order:-1; height:340px; }
+    .feature-grid{ grid-template-columns:1fr 1fr; }
+  }
+  @media (max-width: 560px){
+    .wrap{ padding:0 20px; }
+    .feature-grid{ grid-template-columns:1fr; }
+    .cta-panel{ padding:44px 24px; }
+    .stat{ min-width:45%; margin-bottom:24px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <div class="logo">POLYSTACK<span class="dot">.</span></div>
+    <div class="nav-links">
+      <a href="#curriculum">Curriculum</a>
+      <a href="#pathway">Pathway</a>
+      <a href="#features">Why It Works</a>
+      <a href="#faq">FAQ</a>
+      <a href="library.html">Library</a>
+    </div>
+    <a href="#cta" class="nav-cta">Start Learning</a>
+    <button class="burger" id="burger" aria-label="Toggle menu" aria-expanded="false"><span></span></button>
+  </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#curriculum">Curriculum</a>
+    <a href="#pathway">Pathway</a>
+    <a href="#features">Why It Works</a>
+    <a href="#faq">FAQ</a>
+    <a href="library.html">Library</a>
+    <a href="#cta">Start Learning</a>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <div class="eyebrow">Diploma · Computer Engineering</div>
+        <h1>Build the machine <em>before</em> you write the code.</h1>
+        <p>A 3-year polytechnic diploma that starts you on breadboards and logic gates, and ends with you shipping software. Lab-first, project-graded, built for students choosing hands-on over lecture-only.</p>
+        <div class="hero-actions">
+          <a href="#curriculum" class="btn-primary">Explore the curriculum</a>
+          <a href="#pathway" class="btn-ghost">See where it leads →</a>
+        </div>
+      </div>
+      <div class="hero-visual" id="heroVisual">
+        <span class="corner-tag">IC · LIVE MODEL</span>
+        <span class="drag-hint">drag or swipe to inspect</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats">
+    <div class="wrap">
+      <div class="stats-row">
+        <div class="stat"><div class="num" data-value="3" data-suffix=" YR">0 YR</div><div class="label">6 semesters</div></div>
+        <div class="stat"><div class="num" data-value="18" data-suffix="+">0+</div><div class="label">core subjects</div></div>
+        <div class="stat"><div class="num" data-value="40" data-suffix="%">0%</div><div class="label">time in the lab</div></div>
+        <div class="stat"><div class="num" data-value="2" data-suffix=" PATHS">0 PATHS</div><div class="label">B.Tech or workforce</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="curriculum">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="eyebrow">Curriculum</div>
+        <h2>Six semesters, stacked</h2>
+        <p>Each semester layers on the last — electronics under the hood before data structures, data structures before databases and networks. Scroll and tilt each card.</p>
+      </div>
+      <div class="curriculum-track" id="curriculumTrack">
+        <article class="c-card">
+          <div class="sem">SEM 01–02</div>
+          <h3>Foundations</h3>
+          <ul>
+            <li>Engineering Mathematics</li>
+            <li>C Programming</li>
+            <li>Digital Electronics</li>
+            <li>Basic Electrical &amp; Electronics</li>
+          </ul>
+        </article>
+        <article class="c-card">
+          <div class="sem">SEM 03</div>
+          <h3>Data Structures</h3>
+          <ul>
+            <li>Arrays, stacks, queues, trees</li>
+            <li>Sorting &amp; searching</li>
+            <li>Object-Oriented Programming</li>
+          </ul>
+        </article>
+        <article class="c-card">
+          <div class="sem">SEM 03–04</div>
+          <h3>Computer Organization</h3>
+          <ul>
+            <li>Microprocessors &amp; microcontrollers</li>
+            <li>Assembly-level logic</li>
+            <li>Interfacing &amp; I/O</li>
+          </ul>
+        </article>
+        <article class="c-card">
+          <div class="sem">SEM 04</div>
+          <h3>Databases</h3>
+          <ul>
+            <li>Relational modeling</li>
+            <li>SQL &amp; normalization</li>
+            <li>Transactions &amp; indexing</li>
+          </ul>
+        </article>
+        <article class="c-card">
+          <div class="sem">SEM 05</div>
+          <h3>Operating Systems</h3>
+          <ul>
+            <li>Processes &amp; scheduling</li>
+            <li>Memory management</li>
+            <li>Linux fundamentals</li>
+          </ul>
+        </article>
+        <article class="c-card">
+          <div class="sem">SEM 05</div>
+          <h3>Computer Networks</h3>
+          <ul>
+            <li>OSI &amp; TCP/IP</li>
+            <li>Routing basics</li>
+            <li>Network security intro</li>
+          </ul>
+        </article>
+        <article class="c-card">
+          <div class="sem">SEM 06</div>
+          <h3>Web &amp; Capstone</h3>
+          <ul>
+            <li>Web technologies</li>
+            <li>Software engineering</li>
+            <li>Industry project + viva</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="pathway" id="pathway">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="eyebrow">Pathway</div>
+        <h2>One diploma, two directions</h2>
+        <p>Most students branch out after semester six — into a job, or straight into the second year of a B.Tech through lateral entry, where it's offered by the state and college.</p>
+      </div>
+      <div class="pathway-diagram reveal">
+        <svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg">
+          <path class="trace-line" d="M 150 160 L 340 160"/>
+          <path class="trace-line" d="M 340 160 L 460 70 L 640 70"/>
+          <path class="trace-line" d="M 340 160 L 460 250 L 640 250"/>
+
+          <rect class="p-node root" x="30" y="130" width="220" height="60" rx="3"/>
+          <text class="p-label" x="50" y="155">Diploma · Comp. Engg</text>
+          <text class="p-sub" x="50" y="173">3 years · 6 semesters</text>
+
+          <rect class="p-node" x="340" y="130" width="120" height="60" rx="3"/>
+          <text class="p-label" x="358" y="155">Graduate</text>
+          <text class="p-sub" x="358" y="173">Diploma awarded</text>
+
+          <rect class="p-node" x="640" y="40" width="230" height="60" rx="3"/>
+          <text class="p-label" x="660" y="65">Lateral entry</text>
+          <text class="p-sub" x="660" y="83">B.Tech, 2nd year direct</text>
+
+          <rect class="p-node" x="640" y="220" width="230" height="60" rx="3"/>
+          <text class="p-label" x="660" y="245">Workforce / PSU track</text>
+          <text class="p-sub" x="660" y="263">Jr. engineer roles, exams, AMIE</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="eyebrow">Why it works</div>
+        <h2>Built around the lab, not the lecture hall</h2>
+        <p>The parts of the program that actually change how you think.</p>
+      </div>
+      <div class="feature-grid reveal">
+        <div class="feature">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M7 3v4M17 3v4M7 17v4M17 17v4M3 7h4M17 7h4M3 17h4M17 17h4"/></svg>
+          <h3>Hands-on labs</h3>
+          <p>Breadboards and multimeters before frameworks — you build the circuit, then the code that talks to it.</p>
+        </div>
+        <div class="feature">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 2 3 7l9 5 9-5-9-5Z"/><path d="M3 12l9 5 9-5M3 17l9 5 9-5"/></svg>
+          <h3>Real projects</h3>
+          <p>Every semester ends in something you can demo — not just an exam score.</p>
+        </div>
+        <div class="feature">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+          <h3>Industry mentors</h3>
+          <p>Working engineers review your capstone project, not just your marks.</p>
+        </div>
+        <div class="feature">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 19V5a1 1 0 0 1 1-1h11l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M9 3v6h6" transform="translate(0 -2)"/></svg>
+          <h3>Placement support</h3>
+          <p>A dedicated cell that tracks both private hiring and PSU/government exam calendars.</p>
+        </div>
+        <div class="feature">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3.4"/></svg>
+          <h3>Exam prep built in</h3>
+          <p>Structured guidance for AMIE, lateral-entry exams, and PSU technical papers.</p>
+        </div>
+        <div class="feature">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="7" cy="7" r="2.6"/><circle cx="17" cy="7" r="2.6"/><circle cx="12" cy="17" r="2.6"/><path d="M9 8.6 10.4 14.8M15 8.6 13.6 14.8"/></svg>
+          <h3>Peer community</h3>
+          <p>Batch groups that share notes, past papers, and interview prep with each other.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="eyebrow">FAQ</div>
+        <h2>Common questions</h2>
+      </div>
+      <div class="faq-list reveal">
+        <details>
+          <summary>Is a polytechnic diploma the same level as 12th grade?</summary>
+          <div class="faq-body">No — most diploma programs are entered right after 10th grade and run 3 years, roughly overlapping 11th/12th and the first year of a degree. Entry after 12th is also common in many states, usually with advanced standing.</div>
+        </details>
+        <details>
+          <summary>Can I move into a B.Tech after finishing the diploma?</summary>
+          <div class="faq-body">Yes, in most states — this is called lateral entry, and it typically places you directly into the second year of a B.Tech in a related branch, skipping the first year. Exact rules vary by state and college, so check your state's technical education board.</div>
+        </details>
+        <details>
+          <summary>Do I need to already know how to code?</summary>
+          <div class="faq-body">No. Programming is taught from the basics in semester one, alongside the electronics fundamentals — the diploma assumes no prior coding background.</div>
+        </details>
+        <details>
+          <summary>What kind of jobs are open after the diploma alone?</summary>
+          <div class="faq-body">Junior/technician-level roles in software, IT support, and electronics-adjacent industries, plus eligibility for many PSU and government technical exams — though competitive government roles often reward further qualification too.</div>
+        </details>
+        <details>
+          <summary>How is this different from a straight B.Tech?</summary>
+          <div class="faq-body">More lab time earlier, a shorter path to entry-level work, and the option to convert into a B.Tech later via lateral entry — instead of committing to 4 years upfront.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section id="cta">
+    <div class="wrap">
+      <div class="cta-panel reveal">
+        <div class="eyebrow" style="justify-content:center;">Get started</div>
+        <h2>Ready to see how the semesters fit together?</h2>
+        <p>No signup needed — jump straight into the curriculum, or check the library for the terms and books each semester leans on.</p>
+        <div class="cta-actions">
+          <a href="#curriculum" class="btn-primary">Explore the curriculum</a>
+          <a href="library.html" class="btn-ghost">Browse the library →</a>
+        </div>
+        <div class="cta-note">Demo page — there's no backend behind this yet, so there's nothing here for an email address to connect to.</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="pin-row">
+      <div class="pin-col">
+        <h4>Program</h4>
+        <a href="#curriculum">Curriculum</a>
+        <a href="#pathway">Career pathway</a>
+        <a href="#features">Why it works</a>
+        <a href="library.html">Library — terms &amp; books</a>
+      </div>
+      <div class="pin-col">
+        <h4>Support</h4>
+        <a href="#faq">FAQ</a>
+        <span>Admissions guidance</span>
+        <span>Lateral-entry help</span>
+      </div>
+      <div class="pin-col">
+        <h4>Status</h4>
+        <span>Template · v1.0</span>
+        <span>No backend connected</span>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>POLYSTACK — a Computer Engineering diploma template</span>
+      <span>Design concept, not an accredited institution</span>
+    </div>
+  </div>
+</footer>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@latest/build/three.module.js"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+(function(){
+  "use strict";
+  var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- MOBILE NAV ---------- */
+  var burger = document.getElementById('burger');
+  var mobileMenu = document.getElementById('mobileMenu');
+  burger.addEventListener('click', function(){
+    var open = mobileMenu.classList.toggle('open');
+    burger.classList.toggle('open', open);
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  mobileMenu.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', function(){
+      mobileMenu.classList.remove('open');
+      burger.classList.remove('open');
+    });
+  });
+
+  /* ---------- REVEAL ON SCROLL ---------- */
+  var revealEls = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){ en.target.classList.add('is-visible'); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.15 });
+    revealEls.forEach(function(el){ io.observe(el); });
+  } else {
+    revealEls.forEach(function(el){ el.classList.add('is-visible'); });
+  }
+
+  /* ---------- CURRICULUM CARD TILT (lerped, not raw mousemove) ---------- */
+  if(!reducedMotion){
+    document.querySelectorAll('.c-card').forEach(function(card){
+      var targetX = 0, targetY = 0, curX = 0, curY = 0, hovering = false, raf = null;
+
+      function loop(){
+        curX += (targetX - curX) * 0.14;
+        curY += (targetY - curY) * 0.14;
+        card.style.transform = 'rotateY(' + curX + 'deg) rotateX(' + curY + 'deg) translateZ(' + (hovering ? 8 : 0) + 'px)';
+        if(hovering || Math.abs(targetX - curX) > 0.02 || Math.abs(targetY - curY) > 0.02){
+          raf = requestAnimationFrame(loop);
+        } else {
+          raf = null;
+        }
+      }
+      function ensureLoop(){ if(raf === null){ raf = requestAnimationFrame(loop); } }
+
+      card.addEventListener('mousemove', function(e){
+        var r = card.getBoundingClientRect();
+        var x = (e.clientX - r.left) / r.width - 0.5;
+        var y = (e.clientY - r.top) / r.height - 0.5;
+        targetX = x * 9;
+        targetY = -y * 9;
+        card.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+        card.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+        hovering = true;
+        ensureLoop();
+      });
+      card.addEventListener('mouseleave', function(){
+        hovering = false;
+        targetX = 0; targetY = 0;
+        ensureLoop();
+      });
+    });
+  }
+
+  /* ---------- SCROLL-SPY NAV ---------- */
+  var navLinks = document.querySelectorAll('.nav-links a');
+  var spySections = [];
+  navLinks.forEach(function(a){
+    var id = a.getAttribute('href').slice(1);
+    var el = document.getElementById(id);
+    if(el) spySections.push({ link:a, el:el });
+  });
+  if(spySections.length && 'IntersectionObserver' in window){
+    var spyIO = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        var match = spySections.find(function(s){ return s.el === en.target; });
+        if(!match) return;
+        if(en.isIntersecting){
+          navLinks.forEach(function(a){ a.classList.remove('active'); });
+          match.link.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+    spySections.forEach(function(s){ spyIO.observe(s.el); });
+  }
+
+  /* ---------- STAT COUNT-UP ---------- */
+  var statNums = document.querySelectorAll('.stat .num');
+  function animateCount(el){
+    var target = parseFloat(el.getAttribute('data-value'));
+    var suffix = el.getAttribute('data-suffix') || '';
+    if(reducedMotion || isNaN(target)){ el.textContent = target + suffix; return; }
+    var start = performance.now(), duration = 1100;
+    function tick(now){
+      var p = Math.min(1, (now - start) / duration);
+      var eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(target * eased) + suffix;
+      if(p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+  if(statNums.length && 'IntersectionObserver' in window){
+    var statIO = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){ animateCount(en.target); statIO.unobserve(en.target); }
+      });
+    }, { threshold: 0.6 });
+    statNums.forEach(function(el){ statIO.observe(el); });
+  } else {
+    statNums.forEach(animateCount);
+  }
+
+  /* ---------- CTA FORM (client-side only, honest about it) ---------- */
+
+  /* ---------- THREE.JS CHIP ---------- */
+  var container = document.getElementById('heroVisual');
+  if(!container || typeof THREE === 'undefined') return;
+
+  var scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(42, container.clientWidth / container.clientHeight, 0.1, 100);
+  camera.position.set(0, 1.5, 3.6);
+  camera.lookAt(0,0,0);
+
+  var renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  renderer.setClearColor(0x000000, 0);
+  container.appendChild(renderer.domElement);
+  requestAnimationFrame(function(){ renderer.domElement.classList.add('ready'); });
+
+  scene.add(new THREE.AmbientLight(0x1f3a2c, 0.9));
+  var ledLight = new THREE.PointLight(0x5fe1d4, 1.3, 12);
+  ledLight.position.set(1.5, 2, 2);
+  scene.add(ledLight);
+  var copperLight = new THREE.PointLight(0xc6874f, 0.7, 12);
+  copperLight.position.set(-2, -1, 1.5);
+  scene.add(copperLight);
+
+  var chipGroup = new THREE.Group();
+
+  // body
+  var bodyGeo = new THREE.BoxGeometry(1.7, 0.14, 1.05);
+  var bodyMat = new THREE.MeshStandardMaterial({ color:0x123524, metalness:0.35, roughness:0.55, emissive:0x0a1a12, emissiveIntensity:0.5 });
+  var body = new THREE.Mesh(bodyGeo, bodyMat);
+  chipGroup.add(body);
+
+  var edgeGeo = new THREE.EdgesGeometry(bodyGeo);
+  var edgeMat = new THREE.LineBasicMaterial({ color:0x5fe1d4, transparent:true, opacity:0.5 });
+  chipGroup.add(new THREE.LineSegments(edgeGeo, edgeMat));
+
+  // pins (DIP style, both long edges)
+  var pinGeo = new THREE.BoxGeometry(0.34, 0.045, 0.075);
+  var pinMat = new THREE.MeshStandardMaterial({ color:0xc6874f, metalness:0.75, roughness:0.3, emissive:0x2a1608, emissiveIntensity:0.25 });
+  var pinCount = 7;
+  for(var side = -1; side <= 1; side += 2){
+    for(var i = 0; i < pinCount; i++){
+      var pin = new THREE.Mesh(pinGeo, pinMat);
+      var z = -0.42 + (0.84 / (pinCount - 1)) * i;
+      pin.position.set(side * 1.02, -0.02, z);
+      chipGroup.add(pin);
+    }
+  }
+
+  // orientation notch marker
+  var notchGeo = new THREE.CircleGeometry(0.055, 20);
+  var notchMat = new THREE.MeshBasicMaterial({ color:0x5fe1d4 });
+  var notch = new THREE.Mesh(notchGeo, notchMat);
+  notch.rotation.x = -Math.PI / 2;
+  notch.position.set(-0.72, 0.071, 0);
+  chipGroup.add(notch);
+
+  // decorative top traces
+  var traceMat = new THREE.MeshBasicMaterial({ color:0xc6874f, transparent:true, opacity:0.55 });
+  function addTrace(x,z,w,h,ry){
+    var g = new THREE.BoxGeometry(w, 0.006, h);
+    var m = new THREE.Mesh(g, traceMat);
+    m.position.set(x, 0.075, z);
+    if(ry) m.rotation.y = ry;
+    chipGroup.add(m);
+  }
+  addTrace(0.15, -0.25, 0.5, 0.03);
+  addTrace(0.4, -0.1, 0.03, 0.35);
+  addTrace(-0.2, 0.2, 0.4, 0.03);
+  addTrace(-0.4, 0.05, 0.03, 0.3);
+
+  // pulsing status LED
+  var ledGeo = new THREE.SphereGeometry(0.05, 16, 16);
+  var ledMat = new THREE.MeshStandardMaterial({ color:0x5fe1d4, emissive:0x5fe1d4, emissiveIntensity:0.8 });
+  var statusLed = new THREE.Mesh(ledGeo, ledMat);
+  statusLed.position.set(0.6, 0.1, 0.35);
+  chipGroup.add(statusLed);
+
+  scene.add(chipGroup);
+
+  // ambient particles
+  var particleCount = 140;
+  var positions = new Float32Array(particleCount * 3);
+  for(var p = 0; p < particleCount; p++){
+    var r = 2 + Math.random() * 1.6;
+    var theta = Math.random() * Math.PI * 2;
+    var phi = Math.acos((Math.random() * 2) - 1);
+    positions[p*3] = r * Math.sin(phi) * Math.cos(theta);
+    positions[p*3+1] = r * Math.sin(phi) * Math.sin(theta) * 0.5;
+    positions[p*3+2] = r * Math.cos(phi);
+  }
+  var particleGeo = new THREE.BufferGeometry();
+  particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  var particleMat = new THREE.PointsMaterial({ color:0x5fe1d4, size:0.02, transparent:true, opacity:0.55, sizeAttenuation:true });
+  var particles = new THREE.Points(particleGeo, particleMat);
+  scene.add(particles);
+
+  chipGroup.rotation.x = 0.28;
+  chipGroup.rotation.y = 0.5;
+
+  // interaction — drag with momentum, and an eased (not abrupt) return to auto-rotate
+  var dragging = false, lastX = 0, lastY = 0, idleTimer = null, wantAutoRotate = !reducedMotion;
+  var rotSpeed = 0;              // current eased auto-rotate speed (lerps toward target)
+  var velY = 0, velX = 0;        // drag momentum, decays after release
+  var canvas = renderer.domElement;
+
+  function setIdleResume(){
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function(){ wantAutoRotate = !reducedMotion; }, 1400);
+  }
+
+  canvas.addEventListener('pointerdown', function(e){
+    dragging = true; wantAutoRotate = false;
+    velX = 0; velY = 0;
+    lastX = e.clientX; lastY = e.clientY;
+    canvas.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  }, { passive:false });
+  canvas.addEventListener('pointermove', function(e){
+    if(!dragging) return;
+    e.preventDefault();
+    var dx = e.clientX - lastX, dy = e.clientY - lastY;
+    velY = dx * 0.006;
+    velX = dy * 0.004;
+    chipGroup.rotation.y += velY;
+    chipGroup.rotation.x += velX;
+    chipGroup.rotation.x = Math.max(-0.9, Math.min(0.9, chipGroup.rotation.x));
+    lastX = e.clientX; lastY = e.clientY;
+  }, { passive:false });
+  window.addEventListener('pointerup', function(){
+    if(dragging){ dragging = false; setIdleResume(); }
+  });
+  window.addEventListener('pointercancel', function(){
+    if(dragging){ dragging = false; setIdleResume(); }
+  });
+
+  window.addEventListener('resize', function(){
+    if(!container.clientWidth || !container.clientHeight) return;
+    camera.aspect = container.clientWidth / container.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(container.clientWidth, container.clientHeight);
+  });
+
+  var timer = new THREE.Timer();
+  timer.connect(document);
+  function animate(timestamp){
+    requestAnimationFrame(animate);
+    timer.update(timestamp);
+    var t = timer.getElapsed();
+
+    if(!dragging && (Math.abs(velX) > 0.0001 || Math.abs(velY) > 0.0001)){
+      // momentum: let the last drag velocity carry and decay smoothly
+      chipGroup.rotation.y += velY;
+      chipGroup.rotation.x += velX;
+      chipGroup.rotation.x = Math.max(-0.9, Math.min(0.9, chipGroup.rotation.x));
+      velY *= 0.94; velX *= 0.94;
+    } else {
+      var targetSpeed = wantAutoRotate ? 0.0028 : 0;
+      rotSpeed += (targetSpeed - rotSpeed) * 0.03;
+      chipGroup.rotation.y += rotSpeed;
+    }
+
+    chipGroup.position.y = Math.sin(t * 0.6) * 0.05;
+    ledMat.emissiveIntensity = 0.55 + Math.sin(t * 3) * 0.4;
+    particles.rotation.y += reducedMotion ? 0 : 0.0006;
+    renderer.render(scene, camera);
+  }
+  requestAnimationFrame(animate);
+})();
+</script>
+</body>
+</html>
