@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://pain8055.github.io/Computer-Engineering/sitemap.xml

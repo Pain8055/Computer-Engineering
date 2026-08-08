@@ -5,6 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Library — PolyStack</title>
 <meta name="description" content="Core terms and a semester-by-semester reading list for a Computer Engineering diploma.">
+<link rel="canonical" href="https://pain8055.github.io/Computer-Engineering/library.html">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Library — PolyStack">
+<meta property="og:description" content="Core terms and a semester-by-semester reading list for a Computer Engineering diploma.">
+<meta property="og:image" content="https://pain8055.github.io/Computer-Engineering/og-image.png">
+<meta property="og:url" content="https://pain8055.github.io/Computer-Engineering/library.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Library — PolyStack">
+<meta name="twitter:description" content="Core terms and a semester-by-semester reading list for a Computer Engineering diploma.">
+<meta name="twitter:image" content="https://pain8055.github.io/Computer-Engineering/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -111,9 +125,44 @@
   .mobile-menu a.active{ color:var(--led); }
 
   /* ---------- PAGE HEAD ---------- */
-  .page-head{ position:relative; z-index:1; padding:150px 0 56px; }
-  .page-head h1{ font-size:clamp(30px,4vw,46px); line-height:1.08; margin:16px 0 16px; max-width:680px; }
-  .page-head p{ color:var(--ink-dim); font-size:15.5px; max-width:560px; }
+  .page-head-grid{ display:grid; grid-template-columns: 1.1fr 0.9fr; gap:28px; align-items:center; padding:150px 0 40px; position:relative; z-index:1; }
+  .page-head h1{ font-size:clamp(30px,4vw,46px); line-height:1.08; margin:16px 0 16px; }
+  .page-head p{ color:var(--ink-dim); font-size:15.5px; }
+
+  .lib-visual{
+    position:relative;
+    height:280px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    background:
+      radial-gradient(circle at 70% 30%, rgba(95,225,212,0.06), transparent 60%),
+      var(--panel-3);
+    overflow:hidden;
+    touch-action:none;
+  }
+  .lib-visual canvas{
+    width:100% !important; height:100% !important; display:block; cursor:grab;
+    opacity:0; transition:opacity 1.1s var(--ease);
+    touch-action:none;
+    -webkit-user-select:none; user-select:none;
+    -webkit-touch-callout:none;
+  }
+  .lib-visual canvas.ready{ opacity:1; }
+  .lib-visual canvas:active{ cursor:grabbing; }
+  .corner-tag{
+    position:absolute; top:14px; left:16px; z-index:2;
+    font-family:var(--mono); font-size:10.5px; letter-spacing:0.08em;
+    color:var(--led); opacity:0.85;
+  }
+  .drag-hint{
+    position:absolute; bottom:14px; left:0; right:0; z-index:2;
+    text-align:center;
+    font-family:var(--mono); font-size:11px; letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--ink-dim);
+    opacity:0.7;
+    pointer-events:none;
+  }
 
   /* ---------- FILTER BAR ---------- */
   .filter-bar{
@@ -142,6 +191,29 @@
   }
   .chip:hover{ border-color:var(--copper); color:var(--ink); }
   .chip.active{ border-color:var(--led); color:var(--led); box-shadow:inset 0 0 0 1px var(--led); }
+
+  /* ---------- CONVERTER TOOL ---------- */
+  .converter{ display:grid; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:16px; }
+  .conv-field{
+    background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:16px 18px;
+    transition:border-color .25s var(--ease);
+  }
+  .conv-field:focus-within{ border-color:var(--led); }
+  .conv-field label{
+    display:block; font-family:var(--mono); font-size:11px; letter-spacing:0.08em;
+    text-transform:uppercase; color:var(--led); margin-bottom:9px;
+  }
+  .conv-field input{
+    width:100%; background:var(--void); border:1px solid var(--line); border-radius:var(--radius);
+    padding:10px 12px; color:var(--ink); font-family:var(--mono); font-size:16px;
+    letter-spacing:0.02em;
+  }
+  .conv-field input:focus{ border-color:var(--led); outline:none; }
+  .conv-field input::placeholder{ color:var(--ink-dim); opacity:0.6; }
+  .conv-error{
+    font-family:var(--mono); font-size:12px; color:var(--copper-bright);
+    margin-top:12px; min-height:16px;
+  }
 
   /* ---------- SECTIONS ---------- */
   section{ position:relative; z-index:1; padding:0 0 96px; }
@@ -187,6 +259,12 @@
   .book-card h3{ font-size:16px; margin:10px 0 4px; color:var(--ink); line-height:1.3; }
   .book-author{ font-family:var(--mono); font-size:12px; color:var(--copper-bright); margin-bottom:10px; }
   .book-card p{ font-size:13px; color:var(--ink-dim); }
+  .book-link{
+    display:inline-block; margin-top:12px; font-family:var(--mono); font-size:12px;
+    color:var(--led); border-bottom:1px solid var(--line); padding-bottom:2px;
+    transition:border-color .2s var(--ease), opacity .2s;
+  }
+  .book-link:hover{ border-color:var(--led); }
 
   .empty-msg{
     font-family:var(--mono); font-size:13px; color:var(--ink-dim);
@@ -233,14 +311,23 @@
     .nav-links, .nav-cta{ display:none; }
     .burger{ display:block; }
     .glossary-grid{ grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); }
+    .page-head-grid{ grid-template-columns:1fr; padding-top:120px; }
+    .lib-visual{ order:-1; height:220px; }
   }
   @media (max-width: 560px){
     .wrap{ padding:0 20px; }
-    .page-head{ padding-top:120px; }
+    .page-head-grid{ padding-top:104px; }
     .cta-panel{ padding:40px 22px; }
     .glossary-grid{ grid-template-columns:1fr; }
   }
 </style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@latest/build/three.module.js"
+  }
+}
+</script>
 </head>
 <body>
 
@@ -253,6 +340,7 @@
       <a href="index.html#features">Why It Works</a>
       <a href="index.html#faq">FAQ</a>
       <a href="library.html" class="active">Library</a>
+      <a href="practice.html">Practice</a>
     </div>
     <a href="index.html#cta" class="nav-cta">Start Learning</a>
     <button class="burger" id="burger" aria-label="Toggle menu" aria-expanded="false"><span></span></button>
@@ -263,16 +351,23 @@
     <a href="index.html#features">Why It Works</a>
     <a href="index.html#faq">FAQ</a>
     <a href="library.html" class="active">Library</a>
+    <a href="practice.html">Practice</a>
     <a href="index.html#cta">Start Learning</a>
   </div>
 </header>
 
 <main>
   <div class="wrap">
-    <div class="page-head reveal">
-      <div class="eyebrow">Reference Library</div>
-      <h1>Terms and textbooks, semester by semester.</h1>
-      <p>Every concept and every book below maps to a semester in the curriculum — search across both, or filter down to the stretch you're currently in.</p>
+    <div class="page-head-grid reveal">
+      <div class="page-head">
+        <div class="eyebrow">Reference Library</div>
+        <h1>Terms and textbooks, semester by semester.</h1>
+        <p>Every concept and every book below maps to a semester in the curriculum — search across both, or filter down to the stretch you're currently in.</p>
+      </div>
+      <div class="lib-visual" id="libVisual">
+        <span class="corner-tag">IC RACK · LIVE MODEL</span>
+        <span class="drag-hint">drag or swipe to inspect</span>
+      </div>
     </div>
 
     <div class="filter-bar reveal">
@@ -291,6 +386,33 @@
         <button class="chip" data-sem="web-capstone">Web &amp; Capstone</button>
       </div>
     </div>
+
+    <section id="tools">
+      <div class="section-head reveal">
+        <div class="eyebrow">Try it</div>
+        <h2>Number system converter</h2>
+        <p>Binary, decimal, hex, and octal show up from semester one onward. Type a value into any field — the rest update live.</p>
+      </div>
+      <div class="converter reveal">
+        <div class="conv-field">
+          <label for="convBin">Binary</label>
+          <input type="text" id="convBin" inputmode="numeric" placeholder="e.g. 101010" autocomplete="off">
+        </div>
+        <div class="conv-field">
+          <label for="convDec">Decimal</label>
+          <input type="text" id="convDec" inputmode="numeric" placeholder="e.g. 42" autocomplete="off">
+        </div>
+        <div class="conv-field">
+          <label for="convHex">Hexadecimal</label>
+          <input type="text" id="convHex" placeholder="e.g. 2A" autocomplete="off">
+        </div>
+        <div class="conv-field">
+          <label for="convOct">Octal</label>
+          <input type="text" id="convOct" inputmode="numeric" placeholder="e.g. 52" autocomplete="off">
+        </div>
+      </div>
+      <p class="conv-error" id="convError"></p>
+    </section>
 
     <section id="glossary">
       <div class="section-head reveal">
@@ -350,30 +472,30 @@
       <div class="section-head reveal">
         <div class="eyebrow">Reading list</div>
         <h2>The books each semester actually leans on</h2>
-        <p>Two per semester — a primary text and a companion. All standard, widely available titles, not exclusive to any one program.</p>
+        <p>Two per semester — a primary text and a companion. All standard, widely available titles, not exclusive to any one program. "Find this book" opens an Amazon India search for the title — it's a search link, not a confirmed edition or price.</p>
       </div>
       <div class="book-grid reveal" id="bookGrid">
 
-        <article class="book-card" data-sem="foundations"><div class="book-sem">Foundations</div><h3>Let Us C</h3><div class="book-author">Yashavant Kanetkar</div><p>The standard first C textbook in most Indian diploma and engineering programs, built around short, testable examples.</p></article>
-        <article class="book-card" data-sem="foundations"><div class="book-sem">Foundations</div><h3>Digital Logic and Computer Design</h3><div class="book-author">M. Morris Mano</div><p>The reference most digital electronics courses are built around, from boolean algebra through sequential circuits.</p></article>
+        <article class="book-card" data-sem="foundations"><div class="book-sem">Foundations</div><h3>Let Us C</h3><div class="book-author">Yashavant Kanetkar</div><p>The standard first C textbook in most Indian diploma and engineering programs, built around short, testable examples.</p><a class="book-link" href="https://www.amazon.in/s?k=Let%20Us%20C%20Yashavant%20Kanetkar%20book" target="_blank" rel="noopener noreferrer">Find this book →</a></article>
+        <article class="book-card" data-sem="foundations"><div class="book-sem">Foundations</div><h3>Digital Logic and Computer Design</h3><div class="book-author">M. Morris Mano</div><p>The reference most digital electronics courses are built around, from boolean algebra through sequential circuits.</p><a class="book-link" href="https://www.amazon.in/s?k=Digital%20Logic%20and%20Computer%20Design%20M.%20Morris%20Mano%20book" target="_blank" rel="noopener noreferrer">Find this book →</a></article>
 
-        <article class="book-card" data-sem="data-structures"><div class="book-sem">Data Structures</div><h3>Data Structures Using C</h3><div class="book-author">Reema Thareja</div><p>Implements every core structure directly in C, matching how most diploma courses teach the subject.</p></article>
-        <article class="book-card" data-sem="data-structures"><div class="book-sem">Data Structures</div><h3>Data Structures (Schaum's Outline)</h3><div class="book-author">Seymour Lipschutz</div><p>Dense with solved problems — useful for exam practice alongside a primary text.</p></article>
+        <article class="book-card" data-sem="data-structures"><div class="book-sem">Data Structures</div><h3>Data Structures Using C</h3><div class="book-author">Reema Thareja</div><p>Implements every core structure directly in C, matching how most diploma courses teach the subject.</p><a class="book-link" href="https://www.amazon.in/s?k=Data%20Structures%20Using%20C%20Reema%20Thareja%20book" target="_blank" rel="noopener noreferrer">Find this book →</a></article>
+        <article class="book-card" data-sem="data-structures"><div class="book-sem">Data Structures</div><h3>Data Structures (Schaum's Outline)</h3><div class="book-author">Seymour Lipschutz</div><p>Dense with solved problems — useful for exam practice alongside a primary text.</p><a class="book-link" href="https://www.amazon.in/s?k=Data%20Structures%20%28Schaum%27s%20Outline%29%20Seymour%20Lipschutz%20book" target="_blank" rel="noopener noreferrer">Find this book →</a></article>
 
-        <article class="book-card" data-sem="comp-org"><div class="book-sem">Computer Organization</div><h3>Computer Organization and Architecture</h3><div class="book-author">William Stallings</div><p>The standard reference for how a CPU actually fetches, decodes, and executes instructions.</p></article>
-        <article class="book-card" data-sem="comp-org"><div class="book-sem">Computer Organization</div><h3>Microprocessor Architecture, Programming, and Applications with the 8085</h3><div class="book-author">Ramesh S. Gaonkar</div><p>The usual companion for microprocessor labs built around the 8085.</p></article>
+        <article class="book-card" data-sem="comp-org"><div class="book-sem">Computer Organization</div><h3>Computer Organization and Architecture</h3><div class="book-author">William Stallings</div><p>The standard reference for how a CPU actually fetches, decodes, and executes instructions.</p><a class="book-link" href="https://www.amazon.in/s?k=Computer%20Organization%20and%20Architecture%20William%20Stallings%20book" target="_blank" rel="noopener noreferrer">Find this book →</a></article>
+        <article class="book-card" data-sem="comp-org"><div class="book-sem">Computer Organization</div><h3>Microprocessor Architecture, Programming, and Applications with the 8085</h3><div class="book-author">Ramesh S. Gaonkar</div><p>The usual companion for microprocessor labs built around the 8085.</p><a class="book-link" href="https://www.amazon.in/s?k=Microprocessor%20Architecture%2C%20Programming%2C%20and%20Applications%20with%20the%208085%20Ramesh%20S.%20Gaonkar%20book" target="_blank" rel="noopener noreferrer">Find this book →</a></article>
 
-        <article class="book-card" data-sem="databases"><div class="book-sem">Databases</div><h3>Database System Concepts</h3><div class="book-author">Silberschatz, Korth &amp; Sudarshan</div><p>Broad and rigorous — the default choice for a first DBMS course.</p></article>
-        <article class="book-card" data-sem="databases"><div class="book-sem">Databases</div><h3>Fundamentals of Database Systems</h3><div class="book-author">Elmasri &amp; Navathe</div><p>A common alternative with a strong section on relational design and normalization.</p></article>
+        <article class="book-card" data-sem="databases"><div class="book-sem">Databases</div><h3>Database System Concepts</h3><div class="book-author">Silberschatz, Korth &amp; Sudarshan</div><p>Broad and rigorous — the default choice for a first DBMS course.</p><a class="book-link" href="https://www.amazon.in/s?k=Database%20System%20Concepts%20Silberschatz%2C%20Korth%20%26%20Sudarshan%20book" target="_blank" rel="noopener noreferrer">Find this book →</a></article>
+        <article class="book-card" data-sem="databases"><div class="book-sem">Databases</div><h3>Fundamentals of Database Systems</h3><div class="book-author">Elmasri &amp; Navathe</div><p>A common alternative with a strong section on relational design and normalization.</p><a class="book-link" href="https://www.amazon.in/s?k=Fundamentals%20of%20Database%20Systems%20Elmasri%20%26%20Navathe%20book" target="_blank" rel="noopener noreferrer">Find this book →</a></article>
 
-        <article class="book-card" data-sem="os"><div class="book-sem">Operating Systems</div><h3>Operating System Concepts</h3><div class="book-author">Silberschatz, Galvin &amp; Gagne</div><p>Known as the "Dinosaur Book" — the most widely assigned OS textbook worldwide.</p></article>
-        <article class="book-card" data-sem="os"><div class="book-sem">Operating Systems</div><h3>Modern Operating Systems</h3><div class="book-author">Andrew S. Tanenbaum</div><p>A more implementation-focused companion, useful alongside the above.</p></article>
+        <article class="book-card" data-sem="os"><div class="book-sem">Operating Systems</div><h3>Operating System Concepts</h3><div class="book-author">Silberschatz, Galvin &amp; Gagne</div><p>Known as the "Dinosaur Book" — the most widely assigned OS textbook worldwide.</p><a class="book-link" href="https://www.amazon.in/s?k=Operating%20System%20Concepts%20Silberschatz%2C%20Galvin%20%26%20Gagne%20book" target="_blank" rel="noopener noreferrer">Find this book →</a></article>
+        <article class="book-card" data-sem="os"><div class="book-sem">Operating Systems</div><h3>Modern Operating Systems</h3><div class="book-author">Andrew S. Tanenbaum</div><p>A more implementation-focused companion, useful alongside the above.</p><a class="book-link" href="https://www.amazon.in/s?k=Modern%20Operating%20Systems%20Andrew%20S.%20Tanenbaum%20book" target="_blank" rel="noopener noreferrer">Find this book →</a></article>
 
-        <article class="book-card" data-sem="networks"><div class="book-sem">Computer Networks</div><h3>Computer Networks</h3><div class="book-author">Andrew S. Tanenbaum</div><p>Organizes the subject by network layer, top to bottom.</p></article>
-        <article class="book-card" data-sem="networks"><div class="book-sem">Computer Networks</div><h3>Data Communications and Networking</h3><div class="book-author">Behrouz A. Forouzan</div><p>A gentler, example-heavy alternative that many diploma courses prefer.</p></article>
+        <article class="book-card" data-sem="networks"><div class="book-sem">Computer Networks</div><h3>Computer Networks</h3><div class="book-author">Andrew S. Tanenbaum</div><p>Organizes the subject by network layer, top to bottom.</p><a class="book-link" href="https://www.amazon.in/s?k=Computer%20Networks%20Andrew%20S.%20Tanenbaum%20book" target="_blank" rel="noopener noreferrer">Find this book →</a></article>
+        <article class="book-card" data-sem="networks"><div class="book-sem">Computer Networks</div><h3>Data Communications and Networking</h3><div class="book-author">Behrouz A. Forouzan</div><p>A gentler, example-heavy alternative that many diploma courses prefer.</p><a class="book-link" href="https://www.amazon.in/s?k=Data%20Communications%20and%20Networking%20Behrouz%20A.%20Forouzan%20book" target="_blank" rel="noopener noreferrer">Find this book →</a></article>
 
-        <article class="book-card" data-sem="web-capstone"><div class="book-sem">Web &amp; Capstone</div><h3>Head First HTML and CSS</h3><div class="book-author">Elisabeth Robson &amp; Eric Freeman</div><p>An approachable way into front-end basics before reaching for any framework.</p></article>
-        <article class="book-card" data-sem="web-capstone"><div class="book-sem">Web &amp; Capstone</div><h3>Software Engineering: A Practitioner's Approach</h3><div class="book-author">Roger S. Pressman</div><p>The standard reference for the SDLC and project-management ideas the capstone draws on.</p></article>
+        <article class="book-card" data-sem="web-capstone"><div class="book-sem">Web &amp; Capstone</div><h3>Head First HTML and CSS</h3><div class="book-author">Elisabeth Robson &amp; Eric Freeman</div><p>An approachable way into front-end basics before reaching for any framework.</p><a class="book-link" href="https://www.amazon.in/s?k=Head%20First%20HTML%20and%20CSS%20Elisabeth%20Robson%20%26%20Eric%20Freeman%20book" target="_blank" rel="noopener noreferrer">Find this book →</a></article>
+        <article class="book-card" data-sem="web-capstone"><div class="book-sem">Web &amp; Capstone</div><h3>Software Engineering: A Practitioner's Approach</h3><div class="book-author">Roger S. Pressman</div><p>The standard reference for the SDLC and project-management ideas the capstone draws on.</p><a class="book-link" href="https://www.amazon.in/s?k=Software%20Engineering%3A%20A%20Practitioner%27s%20Approach%20Roger%20S.%20Pressman%20book" target="_blank" rel="noopener noreferrer">Find this book →</a></article>
 
       </div>
       <p class="empty-msg" id="bookEmpty">No books match that search or filter.</p>
@@ -402,6 +524,7 @@
         <a href="index.html#pathway">Career pathway</a>
         <a href="index.html#features">Why it works</a>
         <a href="library.html">Library — terms &amp; books</a>
+        <a href="practice.html">Practice — interactive tools</a>
       </div>
       <div class="pin-col">
         <h4>Support</h4>
@@ -505,6 +628,199 @@
       applyFilter();
     });
   });
+  /* ---------- NUMBER SYSTEM CONVERTER ---------- */
+  var convError = document.getElementById('convError');
+  var convFields = [
+    { el: document.getElementById('convBin'), base: 2,  name: 'binary',      pattern: /^[01]+$/ },
+    { el: document.getElementById('convDec'), base: 10, name: 'decimal',     pattern: /^[0-9]+$/ },
+    { el: document.getElementById('convHex'), base: 16, name: 'hexadecimal', pattern: /^[0-9a-fA-F]+$/ },
+    { el: document.getElementById('convOct'), base: 8,  name: 'octal',       pattern: /^[0-7]+$/ }
+  ];
+  var convUpdating = false;
+
+  function convertFrom(field){
+    var raw = field.el.value.trim();
+    if(raw === ''){
+      convError.textContent = '';
+      convUpdating = true;
+      convFields.forEach(function(f){ if(f !== field) f.el.value = ''; });
+      convUpdating = false;
+      return;
+    }
+    if(!field.pattern.test(raw)){
+      convError.textContent = '"' + raw + '" isn\'t valid ' + field.name + ' — ' +
+        (field.base === 2 ? 'only 0 and 1 allowed.' :
+         field.base === 8 ? 'only digits 0–7 allowed.' :
+         field.base === 16 ? 'only 0–9 and A–F allowed.' : 'only digits 0–9 allowed.');
+      return;
+    }
+    var value = parseInt(raw, field.base);
+    convError.textContent = '';
+    convUpdating = true;
+    convFields.forEach(function(f){
+      if(f === field) return;
+      f.el.value = value.toString(f.base).toUpperCase();
+    });
+    convUpdating = false;
+  }
+
+  convFields.forEach(function(field){
+    field.el.addEventListener('input', function(){
+      if(convUpdating) return;
+      convertFrom(field);
+    });
+  });
+  // seed with a working example so the tool visibly does something on load
+  convFields[1].el.value = '42';
+  convertFrom(convFields[1]);
+
+})();
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+(function(){
+  "use strict";
+  var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var container = document.getElementById('libVisual');
+  if(!container) return;
+
+  var scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(42, container.clientWidth / container.clientHeight, 0.1, 100);
+  camera.position.set(0, 0.15, 3.5);
+  camera.lookAt(0, 0, 0);
+
+  var renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  renderer.setClearColor(0x000000, 0);
+  container.appendChild(renderer.domElement);
+  requestAnimationFrame(function(){ renderer.domElement.classList.add('ready'); });
+
+  scene.add(new THREE.AmbientLight(0x1f3a2c, 0.9));
+  var ledLight = new THREE.PointLight(0x5fe1d4, 1.2, 12);
+  ledLight.position.set(1.5, 2, 2);
+  scene.add(ledLight);
+  var copperLight = new THREE.PointLight(0xc6874f, 0.6, 12);
+  copperLight.position.set(-2, -1, 1.5);
+  scene.add(copperLight);
+
+  var rackGroup = new THREE.Group();
+
+  function buildChip(x, y, z, rotY){
+    var chip = new THREE.Group();
+    var bodyGeo = new THREE.BoxGeometry(0.95, 0.11, 0.52);
+    var bodyMat = new THREE.MeshStandardMaterial({ color:0x123524, metalness:0.35, roughness:0.55, emissive:0x0a1a12, emissiveIntensity:0.5 });
+    chip.add(new THREE.Mesh(bodyGeo, bodyMat));
+
+    var edgeMat = new THREE.LineBasicMaterial({ color:0x5fe1d4, transparent:true, opacity:0.45 });
+    chip.add(new THREE.LineSegments(new THREE.EdgesGeometry(bodyGeo), edgeMat));
+
+    var pinGeo = new THREE.BoxGeometry(0.18, 0.035, 0.055);
+    var pinMat = new THREE.MeshStandardMaterial({ color:0xc6874f, metalness:0.75, roughness:0.3, emissive:0x2a1608, emissiveIntensity:0.25 });
+    var pinCount = 4;
+    for(var side = -1; side <= 1; side += 2){
+      for(var i = 0; i < pinCount; i++){
+        var pin = new THREE.Mesh(pinGeo, pinMat);
+        var pz = -0.18 + (0.36 / (pinCount - 1)) * i;
+        pin.position.set(side * 0.55, -0.02, pz);
+        chip.add(pin);
+      }
+    }
+
+    var notchMat = new THREE.MeshBasicMaterial({ color:0x5fe1d4 });
+    var notch = new THREE.Mesh(new THREE.CircleGeometry(0.035, 18), notchMat);
+    notch.rotation.x = -Math.PI / 2;
+    notch.position.set(-0.37, 0.06, 0);
+    chip.add(notch);
+
+    var traceMat = new THREE.MeshBasicMaterial({ color:0xc6874f, transparent:true, opacity:0.5 });
+    var trace = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.005, 0.02), traceMat);
+    trace.position.set(0.08, 0.06, -0.12);
+    chip.add(trace);
+
+    chip.position.set(x, y, z);
+    chip.rotation.y = rotY;
+    chip.userData.baseY = y;
+    return chip;
+  }
+
+  // three chips stacked as a real rack — spaced well apart vertically so
+  // rotation and the idle bob animation can never bring them into contact
+  var chipA = buildChip(-0.32, 0.6, 0.08, 0.14);
+  var chipB = buildChip(0.1, 0, -0.06, -0.1);
+  var chipC = buildChip(-0.15, -0.6, 0.1, 0.18);
+  rackGroup.add(chipA, chipB, chipC);
+  rackGroup.rotation.x = 0.18;
+  rackGroup.rotation.y = 0.3;
+  scene.add(rackGroup);
+
+  var dragging = false, lastX = 0, lastY = 0, idleTimer = null, wantAutoRotate = !reducedMotion;
+  var rotSpeed = 0, velY = 0, velX = 0;
+  var canvas = renderer.domElement;
+
+  function setIdleResume(){
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function(){ wantAutoRotate = !reducedMotion; }, 1400);
+  }
+
+  canvas.addEventListener('pointerdown', function(e){
+    dragging = true; wantAutoRotate = false;
+    velX = 0; velY = 0;
+    lastX = e.clientX; lastY = e.clientY;
+    canvas.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  }, { passive:false });
+  canvas.addEventListener('pointermove', function(e){
+    if(!dragging) return;
+    e.preventDefault();
+    var dx = e.clientX - lastX, dy = e.clientY - lastY;
+    velY = dx * 0.006;
+    velX = dy * 0.004;
+    rackGroup.rotation.y += velY;
+    rackGroup.rotation.x += velX;
+    rackGroup.rotation.x = Math.max(-0.9, Math.min(0.9, rackGroup.rotation.x));
+    lastX = e.clientX; lastY = e.clientY;
+  }, { passive:false });
+  window.addEventListener('pointerup', function(){
+    if(dragging){ dragging = false; setIdleResume(); }
+  });
+  window.addEventListener('pointercancel', function(){
+    if(dragging){ dragging = false; setIdleResume(); }
+  });
+
+  window.addEventListener('resize', function(){
+    if(!container.clientWidth || !container.clientHeight) return;
+    camera.aspect = container.clientWidth / container.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(container.clientWidth, container.clientHeight);
+  });
+
+  var timer = new THREE.Timer();
+  timer.connect(document);
+  function animate(timestamp){
+    requestAnimationFrame(animate);
+    timer.update(timestamp);
+    var t = timer.getElapsed();
+
+    if(!dragging && (Math.abs(velX) > 0.0001 || Math.abs(velY) > 0.0001)){
+      rackGroup.rotation.y += velY;
+      rackGroup.rotation.x += velX;
+      rackGroup.rotation.x = Math.max(-0.9, Math.min(0.9, rackGroup.rotation.x));
+      velY *= 0.94; velX *= 0.94;
+    } else {
+      var targetSpeed = wantAutoRotate ? 0.0022 : 0;
+      rotSpeed += (targetSpeed - rotSpeed) * 0.03;
+      rackGroup.rotation.y += rotSpeed;
+    }
+
+    [chipA, chipB, chipC].forEach(function(chip, i){
+      chip.position.y = chip.userData.baseY + Math.sin(t * 0.6 + i * 2.1) * 0.025;
+    });
+
+    renderer.render(scene, camera);
+  }
+  requestAnimationFrame(animate);
 })();
 </script>
 </body>

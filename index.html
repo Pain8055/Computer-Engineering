@@ -5,6 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PolyStack — Diploma in Computer Engineering</title>
 <meta name="description" content="A hands-on path through Computer Engineering — from breadboard to build.">
+<link rel="canonical" href="https://pain8055.github.io/Computer-Engineering/">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="PolyStack — Diploma in Computer Engineering">
+<meta property="og:description" content="A hands-on path through Computer Engineering — from breadboard to build.">
+<meta property="og:image" content="https://pain8055.github.io/Computer-Engineering/og-image.png">
+<meta property="og:url" content="https://pain8055.github.io/Computer-Engineering/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="PolyStack — Diploma in Computer Engineering">
+<meta name="twitter:description" content="A hands-on path through Computer Engineering — from breadboard to build.">
+<meta name="twitter:image" content="https://pain8055.github.io/Computer-Engineering/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -354,6 +368,20 @@
   }
   .c-card ul li:first-child{ border-top:none; }
   .c-card ul li::before{ content:"›"; color:var(--copper); }
+  .c-toggle{
+    display:block; margin-top:14px;
+    background:transparent; border:none; padding:2px 0;
+    font-family:var(--mono); font-size:11px; letter-spacing:0.04em;
+    color:var(--copper-bright); opacity:0.85;
+    transition:opacity .2s, color .2s;
+  }
+  .c-toggle:hover{ opacity:1; color:var(--led); }
+  .c-long{
+    font-size:13px; color:var(--ink-dim); line-height:1.6;
+    max-height:0; overflow:hidden; opacity:0;
+    transition:max-height .4s var(--ease), opacity .3s var(--ease), margin-top .4s var(--ease);
+  }
+  .c-card.expanded .c-long{ max-height:280px; opacity:1; margin-top:10px; }
 
   /* ---------- PATHWAY ---------- */
   .pathway{ background:var(--panel-3); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
@@ -498,6 +526,7 @@
       <a href="#features">Why It Works</a>
       <a href="#faq">FAQ</a>
       <a href="library.html">Library</a>
+      <a href="practice.html">Practice</a>
     </div>
     <a href="#cta" class="nav-cta">Start Learning</a>
     <button class="burger" id="burger" aria-label="Toggle menu" aria-expanded="false"><span></span></button>
@@ -508,6 +537,7 @@
     <a href="#features">Why It Works</a>
     <a href="#faq">FAQ</a>
     <a href="library.html">Library</a>
+    <a href="practice.html">Practice</a>
     <a href="#cta">Start Learning</a>
   </div>
 </header>
@@ -559,6 +589,8 @@
             <li>Digital Electronics</li>
             <li>Basic Electrical &amp; Electronics</li>
           </ul>
+          <button class="c-toggle" type="button" aria-expanded="false">+ what you'll actually do</button>
+          <p class="c-long">This is where the diploma earns its "hands-on" label. You're wiring basic circuits on a breadboard in the same weeks you're writing your first C programs, so terms like bit and boolean algebra aren't abstract — they're the thing you just soldered. Most students find the C programming labs the biggest jump from school-level computing.</p>
         </article>
         <article class="c-card">
           <div class="sem">SEM 03</div>
@@ -568,6 +600,8 @@
             <li>Sorting &amp; searching</li>
             <li>Object-Oriented Programming</li>
           </ul>
+          <button class="c-toggle" type="button" aria-expanded="false">+ what you'll actually do</button>
+          <p class="c-long">Everything from here on assumes you can reason about how data is actually stored, not just what a function returns. Expect to implement a stack, a queue, and a linked list from scratch in C before you're allowed to reach for a library version — the point is understanding what's happening underneath.</p>
         </article>
         <article class="c-card">
           <div class="sem">SEM 03–04</div>
@@ -577,6 +611,8 @@
             <li>Assembly-level logic</li>
             <li>Interfacing &amp; I/O</li>
           </ul>
+          <button class="c-toggle" type="button" aria-expanded="false">+ what you'll actually do</button>
+          <p class="c-long">You move from writing code to understanding what a processor actually does with it — registers, buses, the fetch-decode-execute cycle. Labs typically center on a microprocessor like the 8085, and by the end you're wiring and programming basic microcontroller circuits, not just reading about them.</p>
         </article>
         <article class="c-card">
           <div class="sem">SEM 04</div>
@@ -586,6 +622,8 @@
             <li>SQL &amp; normalization</li>
             <li>Transactions &amp; indexing</li>
           </ul>
+          <button class="c-toggle" type="button" aria-expanded="false">+ what you'll actually do</button>
+          <p class="c-long">The shift here is from single-file programs to systems that manage real, persistent data. You'll design a schema, normalize it, and write enough SQL to stop thinking of a table as an abstract concept — a small system like a library or attendance tracker is a common semester project.</p>
         </article>
         <article class="c-card">
           <div class="sem">SEM 05</div>
@@ -595,6 +633,8 @@
             <li>Memory management</li>
             <li>Linux fundamentals</li>
           </ul>
+          <button class="c-toggle" type="button" aria-expanded="false">+ what you'll actually do</button>
+          <p class="c-long">This is the semester that explains why your computer doesn't collapse into chaos running fifty things at once. Process scheduling, memory management, and enough Linux to be comfortable at a terminal — skills that keep showing up in technical interviews long after the exam.</p>
         </article>
         <article class="c-card">
           <div class="sem">SEM 05</div>
@@ -604,6 +644,8 @@
             <li>Routing basics</li>
             <li>Network security intro</li>
           </ul>
+          <button class="c-toggle" type="button" aria-expanded="false">+ what you'll actually do</button>
+          <p class="c-long">How data actually gets from one machine to another, layer by layer — OSI and TCP/IP stop being a diagram to memorize once you've configured a small network and watched packets move through it. Basic security concepts are introduced here too, ahead of anything more specialized.</p>
         </article>
         <article class="c-card">
           <div class="sem">SEM 06</div>
@@ -613,6 +655,8 @@
             <li>Software engineering</li>
             <li>Industry project + viva</li>
           </ul>
+          <button class="c-toggle" type="button" aria-expanded="false">+ what you'll actually do</button>
+          <p class="c-long">The semester where everything else gets used at once. You'll build a working web application applying data structures, databases, and software engineering practice together, then defend it in a viva — this project is usually the centerpiece of a diploma portfolio going into interviews or lateral entry.</p>
         </article>
       </div>
     </div>
@@ -749,6 +793,7 @@
         <a href="#pathway">Career pathway</a>
         <a href="#features">Why it works</a>
         <a href="library.html">Library — terms &amp; books</a>
+        <a href="practice.html">Practice — interactive tools</a>
       </div>
       <div class="pin-col">
         <h4>Support</h4>
@@ -893,6 +938,16 @@ import * as THREE from 'three';
   } else {
     statNums.forEach(animateCount);
   }
+
+  /* ---------- CURRICULUM CARD EXPAND ---------- */
+  document.querySelectorAll('.c-toggle').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var card = btn.closest('.c-card');
+      var open = card.classList.toggle('expanded');
+      btn.textContent = open ? '– show less' : '+ what you\'ll actually do';
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  });
 
   /* ---------- CTA FORM (client-side only, honest about it) ---------- */
 

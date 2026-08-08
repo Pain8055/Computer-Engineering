@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practice — PolyStack</title>
+<meta name="description" content="Interactive tools for computer engineering — a logic gate simulator, glossary flashcards, and a data structures playground.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://pain8055.github.io/Computer-Engineering/practice.html">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Practice — PolyStack">
+<meta property="og:description" content="Interactive tools for computer engineering — a logic gate simulator, glossary flashcards, and a data structures playground.">
+<meta property="og:image" content="https://pain8055.github.io/Computer-Engineering/og-image.png">
+<meta property="og:url" content="https://pain8055.github.io/Computer-Engineering/practice.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Practice — PolyStack">
+<meta name="twitter:description" content="Interactive tools for computer engineering — a logic gate simulator, glossary flashcards, and a data structures playground.">
+<meta name="twitter:image" content="https://pain8055.github.io/Computer-Engineering/og-image.png">
+<style>
+  :root{
+    --void:#0a120d;
+    --panel:#0f2419;
+    --panel-2:#132e1f;
+    --panel-3:#0c1c14;
+    --copper:#c6874f;
+    --copper-bright:#e3a368;
+    --led:#5fe1d4;
+    --ink:#edebdf;
+    --ink-dim:#8fa396;
+    --line: rgba(198,135,79,0.28);
+    --line-soft: rgba(198,135,79,0.14);
+    --radius: 3px;
+    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+    --sans: 'IBM Plex Sans', system-ui, sans-serif;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth; background:var(--void);}
+  body{ background:var(--void); color:var(--ink); font-family:var(--sans); line-height:1.55; overflow-x:hidden; }
+  ::selection{ background:var(--copper); color:var(--void); }
+  a{ color:inherit; text-decoration:none; }
+  ul{ list-style:none; }
+  img,svg{ display:block; max-width:100%; }
+  button{ font-family:inherit; cursor:pointer; }
+  :focus-visible{ outline:2px solid var(--led); outline-offset:3px; }
+  .wrap{ max-width:1180px; margin:0 auto; padding:0 32px; }
+
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(var(--line-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+    background-size: 64px 64px;
+    opacity:0.35;
+    pointer-events:none;
+    z-index:0;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 90%);
+  }
+
+  .eyebrow{
+    font-family:var(--mono); font-size:12.5px; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--led); display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{ content:""; width:7px; height:7px; background:var(--led); border-radius:50%; box-shadow:0 0 8px 1px var(--led); flex-shrink:0; }
+
+  h1,h2,h3{ font-family:var(--mono); font-weight:600; letter-spacing:-0.01em; }
+
+  /* ---------- NAV (matches other pages) ---------- */
+  header{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    background:rgba(10,18,13,0.72); backdrop-filter: blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  nav{ max-width:1180px; margin:0 auto; padding:0 32px; height:66px; display:flex; align-items:center; justify-content:space-between; }
+  .logo{ font-family:var(--mono); font-weight:700; font-size:17px; letter-spacing:0.02em; display:flex; align-items:center; gap:8px; }
+  .logo .dot{ color:var(--led); }
+  .nav-links{ display:flex; gap:34px; }
+  .nav-links a{
+    font-family:var(--mono); font-size:13px; letter-spacing:0.03em; color:var(--ink-dim);
+    transition:color .3s var(--ease); position:relative; padding-bottom:4px;
+  }
+  .nav-links a:hover{ color:var(--ink); }
+  .nav-links a::after{
+    content:""; position:absolute; left:0; right:100%; bottom:-2px; height:1.5px;
+    background:var(--led); box-shadow:0 0 6px 0 var(--led); transition:right .35s var(--ease);
+  }
+  .nav-links a.active{ color:var(--led); }
+  .nav-links a.active::after{ right:0; }
+  .nav-cta{
+    font-family:var(--mono); font-size:13px; letter-spacing:0.02em; padding:9px 18px;
+    border:1px solid var(--copper); border-radius:var(--radius); color:var(--copper-bright);
+    background:transparent; transition:all .2s; white-space:nowrap;
+  }
+  .nav-cta:hover{ background:var(--copper); color:var(--void); }
+  .burger{ display:none; width:34px; height:34px; border:1px solid var(--line); border-radius:var(--radius); background:transparent; position:relative; }
+  .burger span, .burger span::before, .burger span::after{
+    content:""; position:absolute; left:8px; right:8px; height:1.5px; background:var(--ink); transition:transform .25s, opacity .25s;
+  }
+  .burger span{ top:16px; }
+  .burger span::before{ top:-6px; }
+  .burger span::after{ top:6px; }
+  .burger.open span{ background:transparent; }
+  .burger.open span::before{ transform: translateY(6px) rotate(45deg); }
+  .burger.open span::after{ transform: translateY(-6px) rotate(-45deg); }
+  .mobile-menu{
+    display:flex; flex-direction:column; gap:2px; background:var(--panel-3);
+    border-bottom:1px solid transparent; max-height:0; overflow:hidden; opacity:0;
+    transition:max-height .45s var(--ease), opacity .3s var(--ease), border-color .45s;
+  }
+  .mobile-menu.open{ max-height:420px; opacity:1; border-bottom-color:var(--line); }
+  .mobile-menu a{
+    font-family:var(--mono); font-size:14px; padding:16px 32px; border-top:1px solid var(--line-soft);
+    color:var(--ink-dim); transition:color .2s, padding-left .2s var(--ease);
+  }
+  .mobile-menu a:hover{ color:var(--ink); padding-left:38px; }
+  .mobile-menu a.active{ color:var(--led); }
+
+  /* ---------- PAGE HEAD ---------- */
+  .page-head{ position:relative; z-index:1; padding:150px 0 56px; }
+  .page-head h1{ font-size:clamp(30px,4vw,46px); line-height:1.08; margin:16px 0 16px; max-width:680px; }
+  .page-head p{ color:var(--ink-dim); font-size:15.5px; max-width:560px; }
+
+  /* ---------- SECTIONS ---------- */
+  section{ position:relative; z-index:1; padding:0 0 96px; }
+  .section-head{ max-width:620px; margin-bottom:32px; }
+  .section-head h2{ font-size:clamp(24px,3vw,32px); margin:14px 0 12px; }
+  .section-head p{ color:var(--ink-dim); font-size:15px; }
+
+  /* ---------- SHARED: chip tabs ---------- */
+  .chip-row{ display:flex; flex-wrap:wrap; gap:8px; }
+  .chip{
+    font-family:var(--mono); font-size:12px; letter-spacing:0.02em;
+    padding:9px 16px; border:1px solid var(--line); border-radius:var(--radius);
+    color:var(--ink-dim); background:transparent; transition:all .25s var(--ease);
+  }
+  .chip:hover{ border-color:var(--copper); color:var(--ink); }
+  .chip.active{ border-color:var(--led); color:var(--led); box-shadow:inset 0 0 0 1px var(--led); }
+
+  /* ---------- LOGIC GATES ---------- */
+  .gate-controls{ display:flex; gap:12px; margin-bottom:24px; }
+  .input-toggle{
+    font-family:var(--mono); font-size:14px; font-weight:600; padding:13px 26px;
+    border:1px solid var(--line); border-radius:var(--radius); background:var(--panel);
+    color:var(--ink-dim); transition:all .25s var(--ease);
+  }
+  .input-toggle.active{ border-color:var(--led); color:var(--led); box-shadow:inset 0 0 0 1px var(--led); }
+  .gate-grid{
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:1px;
+    background:var(--line); border:1px solid var(--line); border-radius:6px; overflow:hidden;
+  }
+  .gate-card{ background:var(--void); padding:24px 18px; text-align:center; transition:background .25s var(--ease); }
+  .gate-card:hover{ background:var(--panel-3); }
+  .gate-name{ font-family:var(--mono); font-weight:700; font-size:15px; color:var(--ink); margin-bottom:4px; }
+  .gate-note{ font-size:10px; color:var(--ink-dim); opacity:0.7; margin-bottom:6px; height:12px; }
+  .gate-eq{ display:block; font-family:var(--mono); font-size:12px; color:var(--ink-dim); margin-bottom:18px; }
+  .gate-led{
+    width:14px; height:14px; border-radius:50%; background:var(--panel-3);
+    border:1px solid var(--line); margin:0 auto 10px; transition:all .25s var(--ease);
+  }
+  .gate-led.lit{ background:var(--led); box-shadow:0 0 10px 2px rgba(95,225,212,0.6); border-color:var(--led); }
+  .gate-out{ font-family:var(--mono); font-size:13px; color:var(--ink-dim); transition:color .2s; }
+  .gate-out.lit{ color:var(--led); }
+
+  /* ---------- FLASHCARDS ---------- */
+  .flashcard-wrap{ max-width:420px; }
+  .flashcard{ perspective:1200px; cursor:pointer; }
+  .flashcard-inner{
+    position:relative; width:100%; height:220px; transform-style:preserve-3d;
+    transition:transform .5s var(--ease);
+  }
+  .flashcard.flipped .flashcard-inner{ transform:rotateY(180deg); }
+  .flashcard-face{
+    position:absolute; inset:0; backface-visibility:hidden;
+    border:1px solid var(--line); border-radius:8px; background:var(--panel);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:24px; text-align:center;
+  }
+  .flashcard-back{ transform:rotateY(180deg); background:var(--panel-3); }
+  .fc-sem{ font-family:var(--mono); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--led); margin-bottom:16px; }
+  .fc-term{ font-family:var(--mono); font-size:25px; font-weight:700; color:var(--ink); line-height:1.25; }
+  .fc-hint{
+    position:absolute; bottom:16px; font-family:var(--mono); font-size:10.5px;
+    color:var(--ink-dim); opacity:0.6; text-transform:uppercase; letter-spacing:0.08em;
+  }
+  .fc-def{ font-size:15px; color:var(--ink-dim); line-height:1.6; }
+  .flashcard-controls{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:20px; }
+  .flashcard-controls button{
+    font-family:var(--mono); font-size:12.5px; padding:11px 16px; border:1px solid var(--line);
+    border-radius:var(--radius); background:transparent; color:var(--ink-dim); transition:all .2s var(--ease);
+    flex-shrink:0;
+  }
+  .flashcard-controls button:hover{ border-color:var(--copper); color:var(--ink); }
+  #fcCount{ font-family:var(--mono); font-size:12px; color:var(--ink-dim); white-space:nowrap; }
+
+  /* ---------- DATA STRUCTURES ---------- */
+  .struct-tabs{ margin-bottom:22px; }
+  .struct-controls{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:22px; align-items:center; }
+  .struct-controls input{
+    background:var(--void); border:1px solid var(--line); border-radius:var(--radius);
+    padding:10px 12px; color:var(--ink); font-family:var(--mono); font-size:13px; width:100px;
+  }
+  .struct-controls input:focus{ border-color:var(--led); outline:none; }
+  .struct-controls button{
+    font-family:var(--mono); font-size:12.5px; padding:10px 18px; border:1px solid var(--line);
+    border-radius:var(--radius); background:transparent; color:var(--ink-dim); transition:all .2s var(--ease);
+  }
+  .struct-controls button:hover{ border-color:var(--copper); color:var(--ink); }
+  .struct-note{ font-family:var(--mono); font-size:12px; color:var(--ink-dim); margin-top:14px; }
+
+  .stack-view{
+    display:flex; flex-direction:column-reverse; gap:7px; min-height:240px;
+    border:1px dashed var(--line); border-radius:6px; padding:14px; align-items:center;
+  }
+  .queue-view{
+    display:flex; gap:7px; min-height:80px; border:1px dashed var(--line); border-radius:6px;
+    padding:14px; align-items:center; overflow-x:auto;
+  }
+  .struct-block{
+    min-width:64px; padding:11px 10px; text-align:center; background:var(--panel);
+    border:1px solid var(--copper); border-radius:4px; font-family:var(--mono); font-size:13px;
+    color:var(--ink); flex-shrink:0; animation: blockIn .28s var(--ease);
+  }
+  .struct-block.top{ border-color:var(--led); box-shadow:0 0 8px rgba(95,225,212,0.3); color:var(--led); }
+  @keyframes blockIn{ from{ opacity:0; transform:scale(0.75);} to{ opacity:1; transform:scale(1);} }
+
+  .sort-view{
+    display:flex; align-items:flex-end; justify-content:center; gap:7px; min-height:190px;
+    border:1px dashed var(--line); border-radius:6px; padding:16px 14px 8px;
+  }
+  .sort-bar{
+    width:30px; background:var(--panel); border:1px solid var(--copper); border-radius:3px 3px 0 0;
+    display:flex; align-items:flex-start; justify-content:center; padding-top:5px;
+    font-family:var(--mono); font-size:10px; color:var(--ink-dim);
+    transition:height .3s var(--ease), background .2s, border-color .2s, color .2s;
+  }
+  .sort-bar.comparing{ border-color:var(--led); background:rgba(95,225,212,0.14); color:var(--led); }
+  .sort-bar.sorted{ border-color:var(--copper-bright); background:rgba(198,135,79,0.14); }
+
+  /* ---------- FOOTER (matches other pages) ---------- */
+  footer{ border-top:1px solid var(--line); padding:56px 0 40px; position:relative; z-index:1; }
+  .pin-row{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:24px; padding-bottom:32px; margin-bottom:24px; border-bottom:1px solid var(--line-soft); }
+  .pin-col h4{ font-family:var(--mono); font-size:11px; letter-spacing:0.1em; color:var(--led); text-transform:uppercase; margin-bottom:14px; }
+  .pin-col a, .pin-col span{ display:block; font-size:13px; color:var(--ink-dim); padding:5px 0; }
+  .pin-col a:hover{ color:var(--ink); }
+  .foot-bottom{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; font-family:var(--mono); font-size:11.5px; color:var(--ink-dim); opacity:0.7; }
+
+  /* ---------- REVEAL ---------- */
+  .reveal{ opacity:0; transform:translateY(26px); transition:opacity .8s var(--ease), transform .8s var(--ease); }
+  .reveal.is-visible{ opacity:1; transform:translateY(0); }
+  @media (prefers-reduced-motion: reduce){
+    .reveal{ opacity:1; transform:none; transition:none; }
+    .flashcard-inner{ transition:none; }
+  }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 900px){
+    .nav-links, .nav-cta{ display:none; }
+    .burger{ display:block; }
+  }
+  @media (max-width: 560px){
+    .wrap{ padding:0 20px; }
+    .page-head{ padding-top:120px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a href="index.html" class="logo">POLYSTACK<span class="dot">.</span></a>
+    <div class="nav-links">
+      <a href="index.html#curriculum">Curriculum</a>
+      <a href="index.html#pathway">Pathway</a>
+      <a href="index.html#features">Why It Works</a>
+      <a href="index.html#faq">FAQ</a>
+      <a href="library.html">Library</a>
+      <a href="practice.html" class="active">Practice</a>
+    </div>
+    <a href="index.html#cta" class="nav-cta">Start Learning</a>
+    <button class="burger" id="burger" aria-label="Toggle menu" aria-expanded="false"><span></span></button>
+  </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html#curriculum">Curriculum</a>
+    <a href="index.html#pathway">Pathway</a>
+    <a href="index.html#features">Why It Works</a>
+    <a href="index.html#faq">FAQ</a>
+    <a href="library.html">Library</a>
+    <a href="practice.html" class="active">Practice</a>
+    <a href="index.html#cta">Start Learning</a>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="page-head reveal">
+      <div class="eyebrow">Practice</div>
+      <h1>Learn by doing, not just reading.</h1>
+      <p>Three small tools that turn glossary terms into something you can actually poke at — flip a logic gate, quiz yourself on the library, or watch a sort happen one comparison at a time.</p>
+    </div>
+
+    <section id="gates">
+      <div class="section-head reveal">
+        <div class="eyebrow">Logic Gates</div>
+        <h2>Flip the inputs, watch the output</h2>
+        <p>Set A and B, then see how each gate reacts. NOT only looks at A.</p>
+      </div>
+      <div class="gate-controls reveal">
+        <button class="input-toggle" id="inputA" data-val="0">A = 0</button>
+        <button class="input-toggle" id="inputB" data-val="0">B = 0</button>
+      </div>
+      <div class="gate-grid reveal">
+        <div class="gate-card" data-gate="AND">
+          <div class="gate-name">AND</div>
+          <div class="gate-note"></div>
+          <span class="gate-eq">A · B</span>
+          <div class="gate-led"></div>
+          <div class="gate-out">OUT = <span class="gate-out-val">0</span></div>
+        </div>
+        <div class="gate-card" data-gate="OR">
+          <div class="gate-name">OR</div>
+          <div class="gate-note"></div>
+          <span class="gate-eq">A + B</span>
+          <div class="gate-led"></div>
+          <div class="gate-out">OUT = <span class="gate-out-val">0</span></div>
+        </div>
+        <div class="gate-card" data-gate="NOT">
+          <div class="gate-name">NOT</div>
+          <div class="gate-note">(A only)</div>
+          <span class="gate-eq">¬A</span>
+          <div class="gate-led"></div>
+          <div class="gate-out">OUT = <span class="gate-out-val">0</span></div>
+        </div>
+        <div class="gate-card" data-gate="XOR">
+          <div class="gate-name">XOR</div>
+          <div class="gate-note"></div>
+          <span class="gate-eq">A ⊕ B</span>
+          <div class="gate-led"></div>
+          <div class="gate-out">OUT = <span class="gate-out-val">0</span></div>
+        </div>
+        <div class="gate-card" data-gate="NAND">
+          <div class="gate-name">NAND</div>
+          <div class="gate-note"></div>
+          <span class="gate-eq">¬(A · B)</span>
+          <div class="gate-led"></div>
+          <div class="gate-out">OUT = <span class="gate-out-val">0</span></div>
+        </div>
+        <div class="gate-card" data-gate="NOR">
+          <div class="gate-name">NOR</div>
+          <div class="gate-note"></div>
+          <span class="gate-eq">¬(A + B)</span>
+          <div class="gate-led"></div>
+          <div class="gate-out">OUT = <span class="gate-out-val">0</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="flashcards">
+      <div class="section-head reveal">
+        <div class="eyebrow">Flashcards</div>
+        <h2>Quiz yourself on the glossary</h2>
+        <p>All 35 terms from the library, in random-shuffle order if you want it. Tap the card to flip.</p>
+      </div>
+      <div class="flashcard-wrap reveal">
+        <div class="flashcard" id="flashcard">
+          <div class="flashcard-inner">
+            <div class="flashcard-face flashcard-front">
+              <span class="fc-sem" id="fcSem"></span>
+              <span class="fc-term" id="fcTerm"></span>
+              <span class="fc-hint">tap to flip</span>
+            </div>
+            <div class="flashcard-face flashcard-back">
+              <span class="fc-def" id="fcDef"></span>
+              <span class="fc-hint">tap to flip back</span>
+            </div>
+          </div>
+        </div>
+        <div class="flashcard-controls">
+          <button id="fcPrev">← Prev</button>
+          <span id="fcCount">1 / 35</span>
+          <button id="fcShuffle">Shuffle</button>
+          <button id="fcNext">Next →</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="structures">
+      <div class="section-head reveal">
+        <div class="eyebrow">Data Structures</div>
+        <h2>Push, pop, and sort — visually</h2>
+        <p>The same operations from the glossary, but you're driving them.</p>
+      </div>
+      <div class="chip-row struct-tabs reveal">
+        <button class="chip active" data-view="stack">Stack</button>
+        <button class="chip" data-view="queue">Queue</button>
+        <button class="chip" data-view="sort">Bubble Sort</button>
+      </div>
+
+      <div class="struct-panel reveal" id="stackPanel">
+        <div class="struct-controls">
+          <input type="text" id="stackInput" placeholder="value" maxlength="4">
+          <button id="stackPush">Push</button>
+          <button id="stackPop">Pop</button>
+          <button id="stackClear">Clear</button>
+        </div>
+        <div class="stack-view" id="stackView"></div>
+        <p class="struct-note" id="stackNote">Stack is empty — push a value to begin.</p>
+      </div>
+
+      <div class="struct-panel reveal" id="queuePanel" hidden>
+        <div class="struct-controls">
+          <input type="text" id="queueInput" placeholder="value" maxlength="4">
+          <button id="queueEnqueue">Enqueue</button>
+          <button id="queueDequeue">Dequeue</button>
+          <button id="queueClear">Clear</button>
+        </div>
+        <div class="queue-view" id="queueView"></div>
+        <p class="struct-note" id="queueNote">Queue is empty — enqueue a value to begin.</p>
+      </div>
+
+      <div class="struct-panel reveal" id="sortPanel" hidden>
+        <div class="struct-controls">
+          <button id="sortShuffle">Shuffle</button>
+          <button id="sortStep">Step</button>
+          <button id="sortPlay">Play</button>
+          <button id="sortReset">Reset</button>
+        </div>
+        <div class="sort-view" id="sortView"></div>
+        <p class="struct-note" id="sortNote">Comparisons: 0 · Swaps: 0</p>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="pin-row">
+      <div class="pin-col">
+        <h4>Program</h4>
+        <a href="index.html#curriculum">Curriculum</a>
+        <a href="index.html#pathway">Career pathway</a>
+        <a href="index.html#features">Why it works</a>
+        <a href="library.html">Library — terms &amp; books</a>
+        <a href="practice.html">Practice — interactive tools</a>
+      </div>
+      <div class="pin-col">
+        <h4>Support</h4>
+        <a href="index.html#faq">FAQ</a>
+        <span>Admissions guidance</span>
+        <span>Lateral-entry help</span>
+      </div>
+      <div class="pin-col">
+        <h4>Status</h4>
+        <span>Template · v1.0</span>
+        <span>No backend connected</span>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>POLYSTACK — a Computer Engineering diploma template</span>
+      <span>Design concept, not an accredited institution</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- MOBILE NAV ---------- */
+  var burger = document.getElementById('burger');
+  var mobileMenu = document.getElementById('mobileMenu');
+  burger.addEventListener('click', function(){
+    var open = mobileMenu.classList.toggle('open');
+    burger.classList.toggle('open', open);
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  mobileMenu.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', function(){
+      mobileMenu.classList.remove('open');
+      burger.classList.remove('open');
+    });
+  });
+
+  /* ---------- REVEAL ON SCROLL ---------- */
+  var revealEls = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){ en.target.classList.add('is-visible'); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(function(el){ io.observe(el); });
+  } else {
+    revealEls.forEach(function(el){ el.classList.add('is-visible'); });
+  }
+
+  /* ---------- LOGIC GATES ---------- */
+  var gateState = { A: 0, B: 0 };
+  var inputA = document.getElementById('inputA');
+  var inputB = document.getElementById('inputB');
+
+  function computeGate(name, a, b){
+    switch(name){
+      case 'AND':  return (a && b) ? 1 : 0;
+      case 'OR':   return (a || b) ? 1 : 0;
+      case 'NOT':  return a ? 0 : 1;
+      case 'XOR':  return (a ^ b);
+      case 'NAND': return (a && b) ? 0 : 1;
+      case 'NOR':  return (a || b) ? 0 : 1;
+      default: return 0;
+    }
+  }
+  function updateGates(){
+    document.querySelectorAll('.gate-card').forEach(function(card){
+      var gate = card.getAttribute('data-gate');
+      var out = computeGate(gate, gateState.A, gateState.B);
+      var led = card.querySelector('.gate-led');
+      var outVal = card.querySelector('.gate-out-val');
+      var outWrap = card.querySelector('.gate-out');
+      outVal.textContent = out;
+      led.classList.toggle('lit', out === 1);
+      outWrap.classList.toggle('lit', out === 1);
+    });
+  }
+  inputA.addEventListener('click', function(){
+    gateState.A = gateState.A ? 0 : 1;
+    inputA.textContent = 'A = ' + gateState.A;
+    inputA.classList.toggle('active', gateState.A === 1);
+    updateGates();
+  });
+  inputB.addEventListener('click', function(){
+    gateState.B = gateState.B ? 0 : 1;
+    inputB.textContent = 'B = ' + gateState.B;
+    inputB.classList.toggle('active', gateState.B === 1);
+    updateGates();
+  });
+  updateGates();
+
+  /* ---------- FLASHCARDS ---------- */
+  var flashData = [
+    {sem:'Foundations', term:'Bit', def:'The smallest unit of digital information — a single 0 or 1.'},
+    {sem:'Foundations', term:'Boolean Algebra', def:'The algebra of true/false logic that every digital circuit is ultimately built from.'},
+    {sem:'Foundations', term:'Logic Gate', def:'A circuit that produces one boolean output from one or more boolean inputs.'},
+    {sem:'Foundations', term:'Compiler', def:'A program that translates source code, like C, into machine code a processor can run.'},
+    {sem:'Foundations', term:'Algorithm', def:'A finite, well-defined sequence of steps for solving a problem.'},
+    {sem:'Data Structures', term:'Pointer', def:'A variable that stores the memory address of another variable, not the value itself.'},
+    {sem:'Data Structures', term:'Array', def:'A fixed-size, contiguous block of memory holding same-type elements, accessed by index.'},
+    {sem:'Data Structures', term:'Stack', def:'A last-in-first-out structure — the most recently added item is the first removed.'},
+    {sem:'Data Structures', term:'Queue', def:'A first-in-first-out structure — items leave in the order they arrived.'},
+    {sem:'Data Structures', term:'Recursion', def:'A function that solves a problem by calling itself on a smaller version of it.'},
+    {sem:'Computer Organization', term:'Microprocessor', def:'The CPU chip that fetches, decodes, and executes instructions.'},
+    {sem:'Computer Organization', term:'Microcontroller', def:'A self-contained chip with a processor, memory, and I/O on one die.'},
+    {sem:'Computer Organization', term:'Register', def:'A small, extremely fast storage location inside the CPU.'},
+    {sem:'Computer Organization', term:'Assembly Language', def:'A low-level language that maps almost one-to-one onto machine instructions.'},
+    {sem:'Computer Organization', term:'Bus', def:'The shared wires — data, address, control — that move information between CPU, memory, and I/O.'},
+    {sem:'Databases', term:'Primary Key', def:'A column, or set of columns, that uniquely identifies every row in a table.'},
+    {sem:'Databases', term:'Normalization', def:'Structuring tables to reduce duplicated data and avoid inconsistent updates.'},
+    {sem:'Databases', term:'Query', def:'A request, usually in SQL, to retrieve, insert, update, or delete data.'},
+    {sem:'Databases', term:'Transaction', def:'A group of database operations that either all succeed together, or all fail together.'},
+    {sem:'Databases', term:'Index', def:'A lookup structure that speeds up searches on a table.'},
+    {sem:'Operating Systems', term:'Process', def:'A running instance of a program, with its own memory space.'},
+    {sem:'Operating Systems', term:'Thread', def:'A lightweight unit of execution inside a process, sharing its memory.'},
+    {sem:'Operating Systems', term:'Scheduling', def:'How the OS decides which process or thread gets the CPU next.'},
+    {sem:'Operating Systems', term:'Deadlock', def:'A state where processes each wait on a resource the other holds, so neither proceeds.'},
+    {sem:'Operating Systems', term:'Kernel', def:'The core of the OS, managing CPU, memory, and hardware at the highest privilege.'},
+    {sem:'Computer Networks', term:'Protocol', def:'An agreed set of rules that lets two systems exchange data meaningfully.'},
+    {sem:'Computer Networks', term:'IP Address', def:'A numeric label assigned to a device on a network, used to route data to it.'},
+    {sem:'Computer Networks', term:'Router', def:'A device that forwards packets between networks based on destination address.'},
+    {sem:'Computer Networks', term:'Bandwidth', def:'The maximum rate data can travel across a connection.'},
+    {sem:'Computer Networks', term:'Firewall', def:'A system that filters network traffic against a defined set of rules.'},
+    {sem:'Web & Capstone', term:'API', def:'A defined set of rules letting one piece of software request services from another.'},
+    {sem:'Web & Capstone', term:'Version Control', def:'A system, like Git, that tracks code changes so teams can collaborate safely.'},
+    {sem:'Web & Capstone', term:'Client-Server Model', def:'An architecture where a client requests and a server responds.'},
+    {sem:'Web & Capstone', term:'Responsive Design', def:'Building a page so its layout adapts cleanly across screen sizes.'},
+    {sem:'Web & Capstone', term:'Debugging', def:'Finding and fixing the cause of unexpected behaviour in a program.'}
+  ];
+  var fcOrder = flashData.map(function(_, i){ return i; });
+  var fcIndex = 0;
+  var flashcard = document.getElementById('flashcard');
+  var fcSem = document.getElementById('fcSem');
+  var fcTerm = document.getElementById('fcTerm');
+  var fcDef = document.getElementById('fcDef');
+  var fcCount = document.getElementById('fcCount');
+
+  function renderFlashcard(){
+    var item = flashData[fcOrder[fcIndex]];
+    fcSem.textContent = item.sem;
+    fcTerm.textContent = item.term;
+    fcDef.textContent = item.def;
+    fcCount.textContent = (fcIndex + 1) + ' / ' + flashData.length;
+    flashcard.classList.remove('flipped');
+  }
+  flashcard.addEventListener('click', function(){
+    flashcard.classList.toggle('flipped');
+  });
+  document.getElementById('fcPrev').addEventListener('click', function(){
+    fcIndex = (fcIndex - 1 + flashData.length) % flashData.length;
+    renderFlashcard();
+  });
+  document.getElementById('fcNext').addEventListener('click', function(){
+    fcIndex = (fcIndex + 1) % flashData.length;
+    renderFlashcard();
+  });
+  document.getElementById('fcShuffle').addEventListener('click', function(){
+    for(var i = fcOrder.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = fcOrder[i]; fcOrder[i] = fcOrder[j]; fcOrder[j] = tmp;
+    }
+    fcIndex = 0;
+    renderFlashcard();
+  });
+  renderFlashcard();
+
+  /* ---------- STRUCT TABS ---------- */
+  var stackPanel = document.getElementById('stackPanel');
+  var queuePanel = document.getElementById('queuePanel');
+  var sortPanel = document.getElementById('sortPanel');
+  document.querySelectorAll('.struct-tabs .chip').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      document.querySelectorAll('.struct-tabs .chip').forEach(function(c){ c.classList.remove('active'); });
+      tab.classList.add('active');
+      var view = tab.getAttribute('data-view');
+      stackPanel.hidden = view !== 'stack';
+      queuePanel.hidden = view !== 'queue';
+      sortPanel.hidden = view !== 'sort';
+    });
+  });
+
+  /* ---------- STACK ---------- */
+  var stackArr = [];
+  var stackView = document.getElementById('stackView');
+  var stackNote = document.getElementById('stackNote');
+  function renderStack(){
+    stackView.innerHTML = '';
+    stackArr.forEach(function(val, i){
+      var el = document.createElement('div');
+      el.className = 'struct-block' + (i === stackArr.length - 1 ? ' top' : '');
+      el.textContent = val;
+      stackView.appendChild(el);
+    });
+    stackNote.textContent = stackArr.length ? ('Top of stack: ' + stackArr[stackArr.length - 1]) : 'Stack is empty — push a value to begin.';
+  }
+  document.getElementById('stackPush').addEventListener('click', function(){
+    var input = document.getElementById('stackInput');
+    var val = input.value.trim();
+    if(!val || stackArr.length >= 8) return;
+    stackArr.push(val);
+    input.value = '';
+    renderStack();
+  });
+  document.getElementById('stackPop').addEventListener('click', function(){
+    if(!stackArr.length) return;
+    stackArr.pop();
+    renderStack();
+  });
+  document.getElementById('stackClear').addEventListener('click', function(){
+    stackArr = [];
+    renderStack();
+  });
+  renderStack();
+
+  /* ---------- QUEUE ---------- */
+  var queueArr = [];
+  var queueView = document.getElementById('queueView');
+  var queueNote = document.getElementById('queueNote');
+  function renderQueue(){
+    queueView.innerHTML = '';
+    queueArr.forEach(function(val, i){
+      var el = document.createElement('div');
+      el.className = 'struct-block' + (i === 0 ? ' top' : '');
+      el.textContent = val;
+      queueView.appendChild(el);
+    });
+    queueNote.textContent = queueArr.length ? ('Front of queue: ' + queueArr[0]) : 'Queue is empty — enqueue a value to begin.';
+  }
+  document.getElementById('queueEnqueue').addEventListener('click', function(){
+    var input = document.getElementById('queueInput');
+    var val = input.value.trim();
+    if(!val || queueArr.length >= 8) return;
+    queueArr.push(val);
+    input.value = '';
+    renderQueue();
+  });
+  document.getElementById('queueDequeue').addEventListener('click', function(){
+    if(!queueArr.length) return;
+    queueArr.shift();
+    renderQueue();
+  });
+  document.getElementById('queueClear').addEventListener('click', function(){
+    queueArr = [];
+    renderQueue();
+  });
+  renderQueue();
+
+  /* ---------- BUBBLE SORT ---------- */
+  var sortArr = [], sIdx = 0, jIdx = 0, sortDone = false, comparisons = 0, swaps = 0, playInterval = null;
+  var sortView = document.getElementById('sortView');
+  var sortNote = document.getElementById('sortNote');
+  var sortPlayBtn = document.getElementById('sortPlay');
+
+  function newSortArray(){
+    sortArr = [];
+    for(var i = 0; i < 9; i++){ sortArr.push(10 + Math.floor(Math.random() * 85)); }
+    sIdx = 0; jIdx = 0; sortDone = false; comparisons = 0; swaps = 0;
+    stopPlay();
+    renderSort();
+  }
+  function resetSortState(){
+    sIdx = 0; jIdx = 0; sortDone = false; comparisons = 0; swaps = 0;
+    stopPlay();
+    renderSort();
+  }
+  function stopPlay(){
+    if(playInterval){ clearInterval(playInterval); playInterval = null; sortPlayBtn.textContent = 'Play'; }
+  }
+  function renderSort(compareA, compareB){
+    sortView.innerHTML = '';
+    var maxVal = Math.max.apply(null, sortArr);
+    var n = sortArr.length;
+    sortArr.forEach(function(val, idx){
+      var bar = document.createElement('div');
+      bar.className = 'sort-bar';
+      bar.style.height = (24 + (val / maxVal) * 140) + 'px';
+      bar.textContent = val;
+      if(!sortDone && (idx === compareA || idx === compareB)) bar.classList.add('comparing');
+      if(sortDone || idx >= n - sIdx) bar.classList.add('sorted');
+      sortView.appendChild(bar);
+    });
+    sortNote.textContent = 'Comparisons: ' + comparisons + ' · Swaps: ' + swaps + (sortDone ? ' · Sorted!' : '');
+  }
+  function sortStep(){
+    var n = sortArr.length;
+    if(sortDone) return false;
+    if(sIdx >= n - 1){ sortDone = true; renderSort(); return false; }
+    if(jIdx < n - sIdx - 1){
+      comparisons++;
+      var a = jIdx, b = jIdx + 1;
+      if(sortArr[a] > sortArr[b]){
+        var tmp = sortArr[a]; sortArr[a] = sortArr[b]; sortArr[b] = tmp;
+        swaps++;
+      }
+      renderSort(a, b);
+      jIdx++;
+    } else {
+      jIdx = 0; sIdx++;
+      renderSort();
+    }
+    return true;
+  }
+  document.getElementById('sortShuffle').addEventListener('click', newSortArray);
+  document.getElementById('sortReset').addEventListener('click', resetSortState);
+  document.getElementById('sortStep').addEventListener('click', function(){
+    stopPlay();
+    sortStep();
+  });
+  sortPlayBtn.addEventListener('click', function(){
+    if(playInterval){ stopPlay(); return; }
+    sortPlayBtn.textContent = 'Pause';
+    playInterval = setInterval(function(){
+      var cont = sortStep();
+      if(!cont) stopPlay();
+    }, 420);
+  });
+  newSortArray();
+})();
+</script>
+</body>
+</html>
